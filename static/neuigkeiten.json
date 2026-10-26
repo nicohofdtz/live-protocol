@@ -1,0 +1,114 @@
+[
+  {
+    "version": "0.7.0",
+    "date": "2026-10-17",
+    "items": [
+      {
+        "title": "Offener Quelltext",
+        "text": "Live-Protokoll ist jetzt quelloffen (MIT). Neue Fassungen für Mac und Windows liegen bei den Releases auf GitHub, der Hinweis auf eine neue Version führt dorthin."
+      },
+      {
+        "title": "Jeder Anbieter mit OpenAI-Schnittstelle",
+        "text": "Neben Mistral lässt sich in den Einstellungen ein OpenAI-kompatibler Anbieter eintragen – mit Vorlagen für OpenRouter, OpenAI und ein lokales Ollama. Ein Schlüssel genügt; nur Echtzeit, Sprecher und Glossar bei der Erkennung bleiben Mistral vorbehalten. Ein früher eingetragener OpenRouter-Schlüssel gilt weiter."
+      },
+      {
+        "title": "Server ohne Anmeldung",
+        "text": "Eine Server-Instanz läuft jetzt mit einer .env und einem Schlüssel, ohne Benutzerliste. Mehrere Benutzer gibt es hinter einem Proxy, der die Anmeldung übernimmt. Ein whisper.cpp-Server lässt sich auch auf dem Server als lokale Transkription eintragen.",
+        "only": "hosted"
+      },
+      {
+        "title": "Hinweis vor der Aufnahme",
+        "text": "Vor dem Start fragt die App, ob alle Anwesenden einverstanden sind – Gespräche ohne Zustimmung aufzunehmen ist strafbar. Mit „Nicht mehr anzeigen“ kommt der Hinweis auf diesem Gerät nicht wieder."
+      },
+      {
+        "title": "Meine Daten",
+        "text": "In den Einstellungen unter „Meine Daten“ lädst du alles herunter, was der Server über dich weiß, oder löschst Einstellungen, Glossare und gespeicherte Sitzungen.",
+        "only": "hosted"
+      },
+      {
+        "title": "Eigene Seiten für Server",
+        "text": "Wer Live-Protokoll für andere betreibt, ergänzt Impressum, Datenschutzerklärung, eine Hinweisleiste oder ein Logo über ein eigenes Verzeichnis, ohne den Programmcode anzufassen. Die Links erscheinen unten in der Fußzeile.",
+        "only": "admin"
+      },
+      {
+        "title": "Word-Dateien gekennzeichnet",
+        "text": "Exportierte Word-Dateien tragen in den Dokumenteigenschaften den Vermerk „KI-generiert“."
+      }
+    ]
+  },
+  {
+    "version": "0.6.0",
+    "date": "2026-09-25",
+    "items": [
+      {
+        "title": "Wörter im Transkript korrigieren",
+        "text": "Ein Wort im Transkript markieren und auf „Korrigieren“ tippen. Es wird überall oder nur an dieser Stelle ersetzt und auf Wunsch ins Glossar übernommen. Während einer Aufnahme gilt die Korrektur auch für alles, was danach kommt."
+      },
+      {
+        "title": "Mehrere Glossare",
+        "text": "In den Einstellungen legst du Glossare an und kreuzt an, welche gelten. Sie helfen der Erkennung und der Zusammenfassung bei der Schreibweise von Namen und Fachbegriffen. Deine bisherige Begriffsliste heißt jetzt „Allgemein“."
+      },
+      {
+        "title": "„Meine Sitzungen“ hat einen eigenen Knopf",
+        "text": "Oben neben dem Aufnahmeknopf, am Telefon das Schloss. Dort richtest du den Tresor ein, speicherst die aktuelle Sitzung und öffnest gespeicherte.",
+        "only": "hosted"
+      },
+      {
+        "title": "Neuigkeiten",
+        "text": "Dieses Fenster zeigt nach jeder neuen Version, was sich geändert hat. Später wieder zu finden unten in der Fußzeile."
+      }
+    ]
+  },
+  {
+    "version": "0.5.1",
+    "date": "2026-09-24",
+    "items": [
+      {
+        "title": "Monatliche Obergrenze",
+        "text": "Unten in der Fußzeile steht, was du diesen Monat ungefähr verbraucht hast und wo deine Grenze liegt.",
+        "only": "hosted"
+      },
+      {
+        "title": "Besser am Telefon",
+        "text": "Die Seite passt jetzt auf schmale Bildschirme, ohne seitlich zu verrutschen."
+      }
+    ]
+  },
+  {
+    "version": "0.5.0",
+    "date": "2026-09-23",
+    "items": [
+      {
+        "title": "Sitzungen speichern – verschlüsselt",
+        "text": "Unter „Meine Sitzungen“ speicherst du Aufnahme und Arbeitsstand mit einem eigenen Passwort. Nur du kannst sie öffnen, auch der Betreiber nicht. So nimmst du am Telefon auf und machst am Rechner weiter.",
+        "only": "hosted"
+      },
+      {
+        "title": "Eigene API-Schlüssel",
+        "text": "Die Anwendung bringt keine Schlüssel mehr mit. Deine Schlüssel für Mistral und OpenRouter trägst du in den Einstellungen ein.",
+        "only": "desktop"
+      },
+      {
+        "title": "Hochladen fragt vorher nach Sprechern",
+        "text": "Beim Öffnen einer Datei entscheidest du gleich, ob Sprecher unterschieden werden. Die Datei wird dann nur einmal transkribiert."
+      },
+      {
+        "title": "„Mehrere Personen“ auflösen",
+        "text": "Im Bearbeitungsmodus teilt die Eingabetaste eine Zeile, die Rücktaste am Zeilenanfang führt zwei zusammen, und jede Zeile lässt sich einer Person zuordnen – auch einer neuen."
+      },
+      {
+        "title": "Zurück zur Zusammenfassung",
+        "text": "Wer den Zusammenfassen-Dialog verlässt, um erst das Transkript anzusehen, kommt mit dem schwebenden Knopf „Zur Zusammenfassung“ wieder hinein."
+      },
+      {
+        "title": "Aufgeräumte Einstellungen",
+        "text": "Weniger Stellschrauben, weniger Text. Das Modell für das Live-Protokoll erscheint nur, wenn es eingeschaltet ist, und die Statuszeile nennt keine Modellkennungen mehr. Das Glossar gehört jetzt dir allein und beginnt leer."
+      },
+      {
+        "title": "Verbrauch je Nutzer",
+        "text": "Unter „Verbrauch“ in der Fußzeile siehst du Kosten und Minuten je Nutzer und Dienst.",
+        "only": "admin"
+      }
+    ]
+  }
+]

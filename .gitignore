@@ -1,0 +1,16 @@
+__pycache__/
+.venv/
+*.pyc
+.env
+experiments/out/
+experiments/audio/
+build/bin/
+build/dist/
+build/work/
+build/whisper.cpp/
+
+# macOS
+.DS_Store
+
+# Eigene Dateien einer Instanz (siehe docs/overlay.md)
+/overlay/

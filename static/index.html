@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="de" translate="no" class="notranslate">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Chrome bietet sonst ungefragt eine Uebersetzung an, weil die
+     Oberflaechensprache des Browsers von der Seitensprache abweicht. -->
+<meta name="google" content="notranslate">
+<title>Live-Protokoll</title>
+  <link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="/static/icon-180.png" sizes="180x180">
+  <link rel="apple-touch-icon" href="/static/icon-180.png">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- Icon-Sammlung. Strichzeichnungen, erben Farbe und Strichstärke vom Knopf. -->
+<svg class="sprite" aria-hidden="true">
+  <symbol id="i-gear" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>
+  </symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24">
+    <rect x="8" y="8" width="13" height="13" rx="2"/>
+    <path d="M4 16a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m20 6-11 11-5-5"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>
+  </symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24">
+    <rect x="9" y="2" width="6" height="12" rx="3"/>
+    <path d="M19 11v1a7 7 0 0 1-14 0v-1"/><path d="M12 19v3"/>
+  </symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24">
+    <rect x="7" y="4" width="3.5" height="16" rx="1.2"/>
+    <rect x="13.5" y="4" width="3.5" height="16" rx="1.2"/>
+  </symbol>
+  <symbol id="i-play" viewBox="0 0 24 24">
+    <!-- Fuellung direkt am Pfad: CSS auf ein <symbol> greift bei <use> nicht zuverlaessig. -->
+    <path d="M7 4.5v15l12-7.5z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="i-message" viewBox="0 0 24 24">
+    <path d="M21 15a2 2 0 0 1-2 2H8l-4 4V5a2 2 0 0 1 2-2h13a2 2 0 0 1 2 2z"/>
+  </symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12h15"/><path d="m13 6 6 6-6 6"/></symbol>
+  <symbol id="i-agenda" viewBox="0 0 24 24">
+    <path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/>
+    <path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/>
+  </symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <path d="M7 9l5-5 5 5"/><path d="M12 4v12"/>
+  </symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10"/>
+    <path d="M9.5 9a2.5 2.5 0 1 1 3.3 2.37c-.83.34-1.3 1.02-1.3 1.63v.5"/>
+    <circle cx="11.5" cy="17.25" r="1" fill="currentColor" stroke="none"/>
+  </symbol>
+</svg>
+
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-summary" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 6h14M5 10h14M5 14h9M5 18h6"/>
+    <path d="M17.5 14.5l.9 1.9 1.9.9-1.9.9-.9 1.9-.9-1.9-1.9-.9 1.9-.9z"/>
+  </symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>
+  </symbol>
+  <symbol id="i-word" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/>
+    <path d="M14 3v5h5M8.5 12l1.2 5 1.8-4 1.8 4 1.2-5"/>
+  </symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="4" width="18" height="5" rx="1"/>
+    <path d="M5 9v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9M10 13h4"/>
+  </symbol>
+  <symbol id="i-people" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="9" cy="8" r="3.2"/>
+    <path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/>
+    <circle cx="16.5" cy="9" r="2.6"/>
+    <path d="M16 14c2.4 0 4 1.5 4.5 4"/>
+  </symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 11a8 8 0 1 0-2.3 5.7"/>
+    <path d="M20 4v7h-7"/>
+  </symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+  </symbol>
+  <symbol id="i-markdown" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="5.5" width="19" height="13" rx="2"/>
+    <path d="M6 15V9l2.5 3L11 9v6M15.5 9v6M13.5 13l2 2 2-2"/>
+  </symbol>
+</svg>
+
+<header>
+  <h1>Live-Protokoll</h1>
+
+  <div class="controls">
+    <div class="meter" id="level" title="Mikrofonpegel" hidden>
+      <svg class="icon"><use href="#i-mic"/></svg>
+      <div class="meter-bars" id="level-bars"></div>
+    </div>
+
+    <div class="segmented" id="output-type" role="radiogroup" aria-label="Modus">
+      <span class="segmented-thumb" aria-hidden="true"></span>
+    </div>
+
+    <!-- Vor dem Start: Protokoll schon während der Aufnahme? Vorgabe aus -
+         entscheidend ist die Zusammenfassung am Ende. -->
+    <label class="switch" title="Protokoll schon während der Aufnahme fortschreiben">
+      <input type="checkbox" id="live-protocol">
+      <span class="switch-track" aria-hidden="true"></span>
+      <span class="switch-label">Live-Protokoll</span>
+    </label>
+
+    <input type="file" id="audio-file" accept="audio/*,video/mp4,.m4a,.zip,application/zip" hidden>
+    <div class="transport">
+      <button id="toggle" class="primary" title="Aufzeichnung starten">
+        <svg class="icon"><use href="#i-mic" id="toggle-icon"/></svg>
+        <span id="toggle-label">Aufzeichnung starten</span>
+      </button>
+      <button id="stop" class="icon-button" title="Aufzeichnung beenden"
+              aria-label="Aufzeichnung beenden" disabled>
+        <svg class="icon"><use href="#i-stop"/></svg>
+      </button>
+      <button id="context-open" class="icon-button" title="Terminrahmen: Agenda, Beteiligte, Ziel"
+              aria-label="Terminrahmen">
+        <svg class="icon"><use href="#i-agenda"/></svg>
+      </button>
+      <button id="vault-open" class="ghost" title="Gespeicherte Sitzungen öffnen und speichern" hidden>
+        <svg class="icon"><use href="#i-lock"/></svg>
+        <span>Meine Sitzungen</span>
+      </button>
+      <button id="upload-open" class="icon-button" title="Datei öffnen"
+              aria-label="Öffnen">
+        <svg class="icon"><use href="#i-upload"/></svg>
+      </button>
+      <button id="settings-open" class="icon-button" title="Einstellungen"
+              aria-label="Einstellungen">
+        <svg class="icon"><use href="#i-gear"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="status" class="status">wird geladen …</div>
+  <!-- Nur am Telefon: Kein Browser hält das Mikrofon im Hintergrund an. -->
+  <p id="phone-hint" class="phone-hint" hidden>
+    Bildschirm nicht sperren und die App nicht wechseln – sonst hält der Browser
+    die Aufnahme an. Robuster: mit der Sprachmemo-App aufnehmen und die Datei
+    danach <button type="button" id="phone-hint-upload" class="linklike">hier hochladen</button>.
+  </p>
+</header>
+
+<!-- Hinweisleiste der Instanz (BANNER_TEXT oder banner.html im Overlay).
+     Weggeklickt bleibt sie auf diesem Gerät weg, bis sich der Text ändert. -->
+<div id="use-banner" class="use-banner" hidden>
+  <span id="use-banner-text"></span>
+  <button type="button" id="use-banner-close" class="icon-button small" title="Ausblenden"
+          aria-label="Hinweis ausblenden">&times;</button>
+</div>
+
+<!-- Steht im Fluss, nicht als Einblendung am Rand: Wenn kein Ton mehr
+     ankommt, ist das keine Randnotiz. -->
+<div id="audio-warning" class="warning" role="alert" hidden>
+  <svg class="icon"><use href="#i-mic"/></svg>
+  <div>
+    <strong id="audio-warning-title">Es kommt kein Ton mehr an</strong>
+    <p id="audio-warning-text"></p>
+  </div>
+  <button id="audio-warning-resume" class="ghost">Aufnahme fortsetzen</button>
+</div>
+
+<main>
+  <section class="pane">
+    <h2>
+      Transkript
+      <span id="transcribing" class="spinner" hidden role="status"
+            title="Transkription läuft" aria-label="Transkription läuft"></span>
+      <span class="spacer"></span>
+      <select id="speaker-filter" class="small-select" hidden aria-label="Nach Sprecher filtern"></select>
+      <button id="transcript-edit" class="icon-button small" hidden
+              title="Transkript bearbeiten" aria-label="Transkript bearbeiten">
+        <svg class="icon"><use href="#i-edit"/></svg>
+      </button>
+      <button id="speakers-open" class="icon-button small" hidden
+              title="Sprecher unterscheiden" aria-label="Sprecher unterscheiden">
+        <svg class="icon"><use href="#i-people"/></svg>
+      </button>
+      <button id="retranscribe" class="icon-button small" hidden
+              title="Audio erneut transkribieren" aria-label="Audio erneut transkribieren">
+        <svg class="icon"><use href="#i-redo"/></svg>
+      </button>
+      <button id="download-audio" class="icon-button small" hidden
+              title="Aufnahme herunterladen" aria-label="Aufnahme herunterladen">
+        <svg class="icon"><use href="#i-download"/></svg>
+      </button>
+      <button class="icon-button small" data-copy="transcript"
+              title="Transkript kopieren" aria-label="Transkript kopieren">
+        <svg class="icon"><use href="#i-copy"/></svg>
+      </button>
+    </h2>
+    <div id="transcript" class="content">
+      <p class="empty">Noch nichts aufgenommen.</p>
+      <p id="partial" class="seg partial" hidden></p>
+    </div>
+    <div id="transcript-editing" class="editing-bar" hidden>
+      <span class="note">Enter teilt eine Zeile, Rücktaste am Zeilenanfang fügt sie an die vorige.</span>
+      <span class="spacer"></span>
+      <button id="transcript-edit-done" class="primary">Fertig</button>
+    </div>
+  </section>
+
+  <section class="pane">
+    <h2>
+      <span id="protocol-title">Protokoll</span>
+      <span id="cycle-badge" class="spinner" hidden role="status"
+            title="Protokoll wird fortgeschrieben"
+            aria-label="Protokoll wird fortgeschrieben"></span>
+      <span class="spacer"></span>
+      <button class="icon-button small" data-copy="protocol"
+              title="Protokoll kopieren" aria-label="Protokoll kopieren">
+        <svg class="icon"><use href="#i-copy"/></svg>
+      </button>
+      <button class="icon-button small" id="protocol-edit" hidden
+              title="Protokoll bearbeiten" aria-label="Protokoll bearbeiten">
+        <svg class="icon"><use href="#i-edit"/></svg>
+      </button>
+      <button class="icon-button small" id="summary-open" hidden
+              title="Zusammenfassen" aria-label="Zusammenfassen">
+        <svg class="icon"><use href="#i-summary"/></svg>
+      </button>
+      <span class="menu-anchor">
+        <button class="icon-button small" id="export" disabled aria-haspopup="menu"
+                aria-expanded="false" title="Exportieren" aria-label="Exportieren">
+          <svg class="icon"><use href="#i-download"/></svg>
+        </button>
+        <span id="export-menu" class="menu" role="menu" hidden>
+          <button type="button" role="menuitem" data-export="protokoll">
+            <svg class="icon"><use href="#i-markdown"/></svg> Protokoll als Markdown
+          </button>
+          <button type="button" role="menuitem" data-export="protokoll" data-format="docx">
+            <svg class="icon"><use href="#i-word"/></svg> Protokoll als Word
+          </button>
+          <button type="button" role="menuitem" data-export="transkript">
+            <svg class="icon"><use href="#i-markdown"/></svg> Transkript als Markdown
+          </button>
+          <button type="button" role="menuitem" data-export="transkript" data-format="docx">
+            <svg class="icon"><use href="#i-word"/></svg> Transkript als Word
+          </button>
+          <button type="button" role="menuitem" data-export="tresor" hidden>
+            <svg class="icon"><use href="#i-lock"/></svg> In „Meine Sitzungen“ speichern
+          </button>
+          <button type="button" role="menuitem" data-export="projekt">
+            <svg class="icon"><use href="#i-archive"/></svg> Projekt als Datei (ZIP, mit Audio)
+          </button>
+        </span>
+      </span>
+    </h2>
+    <div id="protocol" class="content"><p class="empty">Entsteht nach dem Beenden.</p></div>
+    <div id="protocol-editing" class="editing" hidden>
+      <textarea id="protocol-editor" spellcheck="true" aria-label="Protokoll als Markdown"></textarea>
+      <div class="feedback-buttons">
+        <span class="note">Markdown: # Überschrift, - Aufzählung, **fett**</span>
+        <span class="spacer"></span>
+        <button id="protocol-edit-cancel" class="ghost">Abbrechen</button>
+        <button id="protocol-edit-save" class="primary">Übernehmen</button>
+      </div>
+    </div>
+    <button id="annotate" class="primary floating" hidden>
+      <svg class="icon"><use href="#i-message"/></svg> Anmerkung
+    </button>
+    <div id="annotations" class="annotations" hidden>
+      <div id="annotation-list" class="notes"></div>
+      <div id="change-list" class="notes"></div>
+      <div class="feedback-buttons">
+        <button id="annotation-general" class="ghost">Allgemeine Anmerkung</button>
+        <span class="spacer"></span>
+        <button id="annotations-apply" class="primary">Anmerkungen einarbeiten</button>
+      </div>
+    </div>
+
+    <div id="feedback-area" class="feedback" hidden>
+      <div id="feedback-notes" class="notes"></div>
+      <button id="feedback-open" class="ghost wide" hidden
+              title="Feedback zum Protokoll geben">
+        <svg class="icon"><use href="#i-message"/></svg>
+        <span>Feedback zum Protokoll geben</span>
+      </button>
+      <div id="feedback-panel" hidden>
+        <textarea id="feedback-text" rows="3"
+          placeholder="z. B. „Punkt zur Pegelanzeige kommt zu kurz, bitte ausbauen“"></textarea>
+        <div class="feedback-buttons">
+          <button id="feedback-dictate" class="ghost">
+            <svg class="icon"><use href="#i-mic"/></svg>
+            Diktieren
+          </button>
+          <span class="spacer"></span>
+          <button id="feedback-cancel" class="icon-button" title="Abbrechen" aria-label="Abbrechen">
+            <svg class="icon"><use href="#i-x"/></svg>
+          </button>
+          <button id="feedback-send" class="primary">
+            <svg class="icon"><use href="#i-send"/></svg>
+            Senden
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<button id="back-to-summary" class="primary floating-bottom" hidden>
+  <svg class="icon"><use href="#i-summary"/></svg> Zur Zusammenfassung
+</button>
+
+<div id="first-run" class="overlay" hidden>
+  <div class="card">
+    <h2 id="first-run-title">Einmalige Einrichtung</h2>
+    <p id="first-run-text">Für die Transkription auf diesem Rechner wird ein
+      Sprachmodell benötigt (etwa 570 MB). Es steckt bewusst nicht im Download,
+      damit das Programm klein bleibt.</p>
+    <div class="progress" id="first-run-progress" hidden>
+      <div class="progress-bar"><span id="first-run-fill"></span></div>
+      <p class="note" id="first-run-status"></p>
+    </div>
+    <div class="dialog-buttons">
+      <button id="first-run-skip" class="ghost">Später</button>
+      <button id="first-run-start" class="primary">
+        <svg class="icon"><use href="#i-download"/></svg>
+        Jetzt laden
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="update-hint" class="hint" hidden>
+  <svg class="icon"><use href="#i-download"/></svg>
+  <div>
+    <strong>Neue Fassung verfügbar</strong>
+    <p id="update-text"></p>
+  </div>
+  <a id="update-link" class="ghost" href="#" target="_blank" rel="noopener">Zum Download</a>
+  <button id="update-close" class="icon-button small" title="Ausblenden" aria-label="Ausblenden">
+    <svg class="icon"><use href="#i-x"/></svg>
+  </button>
+</div>
+
+<div id="local-hint" class="hint" hidden>
+  <svg class="icon"><use href="#i-mic"/></svg>
+  <div>
+    <strong>Lieber lokal transkribieren?</strong>
+    <p>Hier läuft die Transkription über einen Cloud-Dienst. Es gibt die
+      Anwendung auch für den eigenen Rechner — dann verlässt kein Audio das
+      Gerät.</p>
+  </div>
+  <a id="local-hint-link" class="ghost" href="#" target="_blank" rel="noopener">Herunterladen</a>
+  <button id="local-hint-close" class="icon-button small"
+          title="Ausblenden" aria-label="Ausblenden">
+    <svg class="icon"><use href="#i-x"/></svg>
+  </button>
+</div>
+
+<footer>
+  <span id="meta"></span>
+  <a id="download-link" href="#" target="_blank" rel="noopener" hidden>Lokale Fassung</a>
+  <!-- Zusätzliche Seiten aus dem Overlay, etwa Impressum und Datenschutz. -->
+  <span id="pages" class="pages"></span>
+  <button id="usage-open" class="linklike" hidden>Verbrauch</button>
+  <span id="quota" hidden title="Geschätzte Kosten diesen Monat und deine Obergrenze"></span>
+  <button id="news-open" class="linklike">Neuigkeiten</button>
+  <span id="version" class="version"></span>
+</footer>
+
+<dialog id="summary-dialog">
+  <form method="dialog">
+    <h3>Zusammenfassen</h3>
+    <p class="note">Das ganze Transkript geht an das gewählte Modell. Das
+      Live-Protokoll geht nicht mit ein.</p>
+
+    <fieldset class="field">
+      <legend class="field-head">Modell</legend>
+      <div id="sum-models" class="choices"></div>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend class="field-head">Umfang</legend>
+      <div id="sum-detail" class="choices row"></div>
+      <p id="sum-detail-note" class="note"></p>
+    </fieldset>
+
+    <fieldset class="field" id="sum-speakers">
+      <legend class="field-head">Sprecher</legend>
+      <label class="checks-row"><input type="checkbox" id="sum-persons">
+        Aussagen Personen zuordnen</label>
+      <p id="sum-speakers-note" class="note"></p>
+      <button type="button" id="sum-speakers-edit" class="ghost small-button"></button>
+    </fieldset>
+
+    <fieldset class="field">
+      <legend class="field-head">Bausteine</legend>
+      <div id="sum-blocks" class="checks"></div>
+    </fieldset>
+
+    <label class="field">
+      <span class="field-head">Weitere Vorgabe</span>
+      <textarea id="sum-freitext" rows="2"
+        placeholder="z. B. „auf Englisch“ oder „nur den Teil zum Budget“"></textarea>
+    </label>
+    <p id="sum-feedback" class="note"></p>
+
+    <div class="dialog-buttons">
+      <button value="cancel" class="ghost">Später</button>
+      <button value="run" class="primary">
+        <svg class="icon"><use href="#i-summary"/></svg>
+        Zusammenfassen
+      </button>
+    </div>
+  </form>
+</dialog>
+
+<button id="correct-word" class="primary floating" hidden>
+  <svg class="icon"><use href="#i-edit"/></svg> Korrigieren
+</button>
+
+<dialog id="correct-dialog">
+  <form method="dialog">
+    <h3>Korrigieren</h3>
+    <p id="correct-quote" class="note"></p>
+    <label class="field">
+      <span class="field-head">Richtig</span>
+      <input type="text" id="correct-text" autocomplete="off">
+    </label>
+    <label class="checks-row"><input type="checkbox" id="correct-all" checked>
+      Überall im Transkript ersetzen</label>
+    <label class="checks-row"><input type="checkbox" id="correct-glossary" checked>
+      Ins Glossar aufnehmen</label>
+    <label class="field" id="correct-target-row">
+      <span class="field-head">Glossar</span>
+      <select id="correct-target"></select>
+    </label>
+    <p id="correct-note" class="note"></p>
+    <div class="dialog-buttons">
+      <button value="cancel" class="ghost">Abbrechen</button>
+      <button value="save" class="primary">Übernehmen</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="annotation-dialog">
+  <form method="dialog">
+    <h3>Anmerkung</h3>
+    <p id="annotation-quote" class="note"></p>
+    <label class="field">
+      <span class="field-head">Was soll sich ändern?</span>
+      <textarea id="annotation-text" rows="3"
+        placeholder="z. B. „gemeint ist Frau Maier, nicht Meier“ oder „das war keine Entscheidung“"></textarea>
+    </label>
+    <div class="dialog-buttons">
+      <button value="cancel" class="ghost">Abbrechen</button>
+      <button value="save" class="primary">Merken</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="speaker-dialog">
+  <form method="dialog">
+    <h3>Sprecher zuordnen</h3>
+    <p class="note">Hör rein und gib jedem Sprecher einen Namen. Hat die Erkennung
+      Personen zusammengeworfen: „mehrere Personen“ ankreuzen und die Zeilen im Transkript
+      zuordnen.</p>
+    <div id="speaker-tabs" class="tabs" role="tablist"></div>
+    <div id="speaker-panel" class="speaker-panel">
+      <label class="field">
+        <span class="field-head">Name</span>
+        <input type="text" id="speaker-name" autocomplete="off" placeholder="z. B. Martina">
+      </label>
+      <label class="checks-row"><input type="checkbox" id="speaker-mixed">
+        Mehrere Personen – nicht sauber getrennt</label>
+      <button type="button" id="speaker-split" class="ghost small-button" hidden>
+        Zeilen dieses Sprechers einzeln zuordnen …</button>
+      <div id="speaker-samples" class="samples"></div>
+    </div>
+    <div class="dialog-buttons">
+      <button value="check" class="ghost">Transkript prüfen</button>
+      <button value="summary" class="primary">
+        <svg class="icon"><use href="#i-summary"/></svg>
+        Weiter zur Zusammenfassung
+      </button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="context-dialog">
+  <form method="dialog">
+    <h3>Terminrahmen</h3>
+    <p class="note">Alles freiwillig, alles nachreichbar — auch wenn die Aufnahme schon
+      läuft. Was hier steht, hilft dem Protokoll beim Einordnen und bei Namen und
+      Abkürzungen. Es wird nichts protokolliert, was nicht gesagt wurde.</p>
+
+    <label class="field">
+      <span class="field-head">Thema oder Anlass</span>
+      <input id="ctx-topic" type="text" placeholder="z. B. Workshop Produktstrategie">
+    </label>
+
+    <label class="field">
+      <span class="field-head">Agenda</span>
+      <textarea id="ctx-agenda" rows="5"
+                placeholder="Ein Punkt je Zeile — oder einfach hineinkopiert"></textarea>
+    </label>
+
+    <label class="field">
+      <span class="field-head">Beteiligte</span>
+      <textarea id="ctx-participants" rows="2"
+                placeholder="Namen, Rollen, Abkürzungen die vorkommen"></textarea>
+    </label>
+
+    <label class="field">
+      <span class="field-head">Ziel des Termins</span>
+      <input id="ctx-goal" type="text" placeholder="Woran sich am Ende Erfolg misst">
+    </label>
+
+    <div class="dialog-buttons">
+      <button value="cancel" class="ghost">Abbrechen</button>
+      <button id="ctx-save" value="save" class="primary">Übernehmen</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="settings">
+  <form method="dialog">
+    <h3>Einstellungen</h3>
+
+    <label class="field">
+      <span class="field-head">Transkription</span>
+      <select id="set-engine"></select>
+    </label>
+    <p id="engine-note" class="note"></p>
+
+    <label class="checks-row"><input type="checkbox" id="set-live">
+      Live-Protokoll während der Aufnahme</label>
+    <div id="live-options" class="sub-options" hidden>
+      <label class="field">
+        <span class="field-head">Modell dafür</span>
+        <select id="set-llm"></select>
+      </label>
+      <p id="llm-note" class="note"></p>
+    </div>
+
+    <label class="checks-row"><input type="checkbox" id="set-speakers-after">
+      Nach dem Beenden Sprecher unterscheiden</label>
+    <p id="speakers-note" class="note"></p>
+
+    <fieldset class="field">
+      <legend class="field-head">Glossare</legend>
+      <div id="glossary-list" class="glossaries"></div>
+      <button type="button" id="glossary-add" class="ghost small-button">Neues Glossar</button>
+      <p id="vocabulary-note" class="note">Angekreuzte Glossare gehen an die Erkennung und die
+        Zusammenfassung. Wörter im Transkript markieren und korrigieren nimmt sie auf.</p>
+    </fieldset>
+
+    <div id="credentials" hidden>
+      <h4>Anbieter</h4>
+      <p class="note">Schlüssel bleiben auf diesem Rechner, nicht im Browser. Einer
+        der beiden genügt.</p>
+      <label class="field">Mistral API-Schlüssel <span class="note">(empfohlen, EU)</span>
+        <input id="set-mistral-key" type="password" autocomplete="off" placeholder="nicht hinterlegt">
+      </label>
+      <p class="note">Damit geht alles: Voxtral, auch in Echtzeit, Sprecher unterscheiden,
+        Glossar bei der Erkennung, Live-Protokoll und Zusammenfassung.</p>
+      <details class="more" id="compat-box">
+        <summary>OpenAI-kompatibler Anbieter</summary>
+        <label class="field">Vorlage
+          <select id="set-compat-preset"></select>
+        </label>
+        <p id="compat-note" class="note"></p>
+        <label class="field">Adresse
+          <input id="set-compat-url" type="text" placeholder="https://…">
+        </label>
+        <label class="field">Schlüssel (falls nötig)
+          <input id="set-compat-key" type="password" autocomplete="off" placeholder="nicht hinterlegt">
+        </label>
+        <label class="field">Modell fürs Live-Protokoll
+          <input id="set-compat-live" type="text">
+        </label>
+        <label class="field">Modell für die Zusammenfassung
+          <input id="set-compat-summary" type="text">
+        </label>
+        <label class="field">Modell für die Transkription (optional)
+          <input id="set-compat-transcription" type="text" placeholder="leer = keine">
+        </label>
+        <p class="note">Geht alles außer dem, was nur Mistral kann (Echtzeit, Sprecher,
+          Glossar bei der Erkennung). Adresse leeren entfernt den Anbieter.</p>
+      </details>
+    </div>
+
+    <details class="more">
+      <summary>Meine Daten</summary>
+      <p class="note">Einstellungen, Glossare, Verbrauch und die Liste gespeicherter
+        Sitzungen als Datei – oder alles löschen, was auf dem Server zu dir liegt
+        (außer dem Verbrauch, der nach 13 Monaten verfällt).</p>
+      <div class="feedback-buttons">
+        <a class="ghost small-button" href="/api/me/export" download>Herunterladen</a>
+        <button type="button" id="me-delete" class="ghost small-button">Löschen …</button>
+      </div>
+    </details>
+
+    <div class="dialog-buttons">
+      <button value="cancel" class="ghost">Abbrechen</button>
+      <button id="settings-save" value="save" class="primary">Übernehmen</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="open-dialog">
+  <form method="dialog">
+    <h3>Öffnen</h3>
+    <fieldset class="field">
+      <legend class="field-head">Datei</legend>
+      <p class="note">Eine Aufnahme (MP3, M4A, WAV …) oder ein gespeichertes Projekt (ZIP).</p>
+      <label class="checks-row" id="open-diarize-row"><input type="checkbox" id="open-diarize">
+        Sprecher unterscheiden</label>
+      <p id="open-diarize-note" class="note"></p>
+      <button type="button" id="open-file" class="primary">
+        <svg class="icon"><use href="#i-upload"/></svg> Datei wählen …
+      </button>
+    </fieldset>
+    <p class="note" id="open-vault-hint" hidden>Gespeicherte Sitzungen liegen unter
+      <button type="button" id="open-vault" class="linklike">Meine Sitzungen</button>.</p>
+    <div class="dialog-buttons">
+      <button value="cancel" class="ghost">Schließen</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="vault-dialog">
+  <form method="dialog">
+    <h3>Meine Sitzungen</h3>
+    <div id="vault-body" class="field"></div>
+    <div class="dialog-buttons">
+      <button value="cancel" class="ghost">Schließen</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="consent-dialog">
+  <form method="dialog">
+    <h3>Alle einverstanden?</h3>
+    <p>Bitte nur aufnehmen, wenn alle Anwesenden zugestimmt haben. Gespräche ohne
+      Zustimmung aufzunehmen ist strafbar (§ 201 StGB); verantwortlich ist, wer die
+      Aufnahme startet.</p>
+    <label class="checks-row"><input type="checkbox" id="consent-hide">
+      Nicht mehr anzeigen</label>
+    <div class="dialog-buttons">
+      <button value="cancel" class="ghost">Abbrechen</button>
+      <button value="ok" class="primary">Aufnahme starten</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="news-dialog">
+  <form method="dialog">
+    <h3>Neu in Live-Protokoll</h3>
+    <div id="news-body"></div>
+    <div class="dialog-buttons">
+      <button value="cancel" class="primary">Verstanden</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="usage-dialog">
+  <form method="dialog">
+    <h3>Verbrauch</h3>
+    <label class="field">
+      <span class="field-head">Monat</span>
+      <select id="usage-month"></select>
+    </label>
+    <div id="usage-body"></div>
+    <p class="note">Geschätzt aus Listenpreisen, in US-Dollar. Maßgeblich sind die Konten bei
+      den Anbietern.</p>
+    <div class="dialog-buttons">
+      <button value="cancel" class="ghost">Schließen</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="/static/projekt.js"></script>
+<script src="/static/tresor.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

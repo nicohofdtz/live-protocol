@@ -1,0 +1,27 @@
+# Führt die Tests bei jedem Push aus.
+#
+# build.yml packt nur Bündel; ob die Tests grün sind, soll nicht davon
+# abhängen, dass jemand von Hand nachsieht. Neue Pfade sollen nicht erst
+# beim nächsten Termin auffallen.
+
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+
+      - name: Abhängigkeiten
+        run: uv sync
+
+      - name: Tests
+        run: uv run pytest -q

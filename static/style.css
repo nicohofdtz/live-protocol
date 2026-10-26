@@ -1,0 +1,621 @@
+:root {
+  --bg: #f6f6f4; --fg: #1a1a18; --muted: #6b6b66; --line: #dcdcd6;
+  --panel: #ffffff; --accent: #2b6b52; --accent-fg: #ffffff; --warn: #a33;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17181a; --fg: #e8e8e4; --muted: #9a9a94; --line: #303236;
+    --panel: #1f2023; --accent: #4f9c7c; --accent-fg: #10110f; --warn: #e08a8a;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  display: flex; flex-direction: column; height: 100vh; height: 100dvh;
+}
+header {
+  padding: 12px 18px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+}
+h1 { font-size: 16px; margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+.controls { display: flex; gap: 14px; align-items: center; margin-left: auto; }
+label { font-size: 12px; color: var(--muted); display: flex; gap: 6px; align-items: center; }
+select {
+  font: inherit; font-size: 13px; padding: 4px 6px; background: var(--panel);
+  color: var(--fg); border: 1px solid var(--line); border-radius: 6px;
+}
+/* --- Segmented Control (Modus) ----------------------------------------- */
+/* Feste Segmentbreite statt gemessener Label-Breite: der gleitende Hintergrund
+   ist dann ein reiner CSS-Ausdruck (translateX um Vielfache der Eigenbreite),
+   ohne dass JS bei jeder Änderung nachmessen muss. */
+.segmented {
+  position: relative; display: flex; padding: 2px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 7px;
+}
+.segmented-item { position: relative; z-index: 1; flex: 1; display: flex; }
+.segmented-item input {
+  position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer;
+}
+.segmented-item input:disabled { cursor: default; }
+.segmented-item label {
+  flex: 1; text-align: center; padding: 4px 12px; border-radius: 5px;
+  font-size: 12px; color: var(--muted); cursor: pointer; user-select: none;
+}
+.segmented-item input:checked + label { color: var(--accent-fg); }
+.segmented-item input:disabled + label { opacity: .6; cursor: default; }
+.segmented-item input:focus-visible + label { outline: 2px solid var(--accent); outline-offset: -2px; }
+.segmented-thumb {
+  position: absolute; z-index: 0; top: 2px; bottom: 2px; left: 2px;
+  width: calc((100% - 4px) / var(--segments, 2));
+  background: var(--accent); border-radius: 5px;
+  transform: translateX(calc(var(--index, 0) * 100%));
+  transition: transform .18s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .segmented-thumb { transition: none; }
+}
+
+button.primary {
+  font: inherit; font-size: 13px; font-weight: 550; padding: 7px 14px;
+  border: 0; border-radius: 6px; background: var(--accent); color: var(--accent-fg);
+  cursor: pointer;
+}
+button.primary:disabled { opacity: .5; cursor: default; }
+.status { font-size: 12px; color: var(--muted); width: 100%; }
+.status.error { color: var(--warn); }
+
+.use-banner {
+  display: flex; align-items: center; gap: 10px; padding: 6px 18px;
+  font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--line);
+  background: var(--panel);
+}
+.use-banner[hidden] { display: none; }
+.use-banner span { flex: 1; }
+.use-banner a { color: var(--accent); }
+footer .pages { display: contents; }
+#consent-dialog { max-width: 460px; width: calc(100% - 32px); }
+
+main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+       background: var(--line); min-height: 0; }
+.pane { background: var(--bg); display: flex; flex-direction: column; min-height: 0; }
+.pane > h2 {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted); margin: 0; padding: 10px 18px; border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; gap: 8px;
+}
+.badge {
+  font-size: 11px; text-transform: none; letter-spacing: 0;
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: 10px; padding: 1px 8px; color: var(--muted);
+}
+.badge.pending { color: var(--accent); }
+/* Zeigt an, dass gerade gearbeitet wird - und nur das. Vorher stand hier ein
+   Laufzähler, der nach dem Lauf stehen blieb und wie ein Fortschritt aussah,
+   obwohl gar nichts mehr lief. */
+.spinner {
+  width: 13px; height: 13px; flex: none; border-radius: 50%;
+  border: 2px solid var(--line); border-top-color: var(--accent);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 2.4s; }
+}
+.content { flex: 1; overflow-y: auto; padding: 16px 18px; }
+.content .empty { color: var(--muted); font-style: italic; }
+.seg { margin: 0 0 12px; }
+.seg time { color: var(--muted); font-variant-numeric: tabular-nums;
+            font-size: 12px; margin-right: 8px; }
+.seg.fresh { animation: fade .6s ease; }
+/* Der Satz, den ein Strom-Dienst gerade noch schreibt: sichtbar, aber als
+   noch nicht fertig erkennbar. */
+.seg.partial { color: var(--muted); font-style: italic; }
+
+@keyframes fade { from { opacity: .35; } to { opacity: 1; } }
+#protocol h2 { font-size: 15px; margin: 18px 0 6px; padding: 0; border: 0;
+               text-transform: none; letter-spacing: 0; color: var(--fg); }
+#protocol h2:first-child { margin-top: 0; }
+#protocol h3 { font-size: 14px; margin: 14px 0 4px; }
+#protocol ul { margin: 4px 0 10px; padding-left: 20px; }
+#protocol p { margin: 4px 0 10px; }
+footer { border-top: 1px solid var(--line); padding: 7px 18px;
+         font-size: 12px; color: var(--muted); min-height: 30px; }
+/* Kleine Bildschirme. Nebeneinander sind zwei Spalten auf einem Telefon je
+   180 Pixel breit - da steht nichts mehr, also untereinander. Der Rest folgt
+   daraus: Der Kopf muss umbrechen dürfen, und was man mit dem Daumen trifft,
+   braucht Fläche statt Rand. */
+@media (max-width: 760px) {
+  main { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
+
+  /* Jede Zeile im Kopf geht von der Fläche für Transkript und Protokoll ab.
+     Deshalb Modus-Schalter und Symbolschalter in einer Zeile, und die
+     Überschrift entfällt - der Titel steht im Browsertab. */
+  header { padding: 8px 10px; gap: 8px; }
+  h1 { display: none; }
+  .controls { margin-left: 0; width: 100%; flex-wrap: wrap; gap: 8px; }
+  .controls label { flex: 1 1 auto; min-width: 0; }
+  .controls select { flex: 1 1 auto; min-width: 0; }
+  /* Zwei Zeilen statt drei: oben Pegel, Moduswahl und Symbolschalter, unten
+     der Startknopf über die volle Breite - dort liegt der Daumen ohnehin.
+     Während der Aufnahme kommt der Pegel hinzu, dafür weicht der
+     Hochladen-Knopf: Eine Datei geht ohnehin erst nach dem Beenden. */
+  .meter { order: 0; flex: 0 0 auto; }
+  .controls .segmented { flex: 1 1 auto; min-width: 0; order: 1; }
+
+  /* Zweite Zeile: die vier Griffe nebeneinander, gleich breit und groß genug
+     für den Daumen. Die Beschriftung des großen Knopfes entfällt hier - was er
+     tut, sagt sein Symbol, und die Breite braucht die Zeile für die anderen. */
+  .transport { order: 2; flex: 1 1 100%; gap: 8px; }
+  .transport > button { flex: 1; min-height: 44px; justify-content: center; }
+  .transport #toggle span { display: none; }
+  /* Am Telefon reicht die Breite nicht für die Beschriftung; der Öffnen-Dialog
+     verweist zusätzlich auf „Meine Sitzungen“. */
+  .transport #vault-open span { display: none; }
+  .status { font-size: 11px; }
+
+  /* Nach dem Kopf bleiben auf einem Telefon gut 600 Pixel für zwei Bereiche -
+     geteilt sind das je rund 250. Ein Tipp auf die Überschrift gibt einem
+     davon das Doppelte; wer mitliest, schaut ohnehin auf einen. */
+  .pane > h2 { padding: 8px 12px; cursor: pointer; flex-wrap: wrap; row-gap: 4px; }
+  /* Ohne das setzt die Kopfzeile mit ihren Symbolen die Breite, und die
+     Seite wird breiter als der Bildschirm (gemessen: 414 statt 375 px). */
+  main { grid-template-columns: minmax(0, 1fr); }
+  .pane { min-width: 0; }
+  .annotations .feedback-buttons { flex-wrap: wrap; }
+  .pane > h2::after {
+    content: ''; width: 7px; height: 7px; flex: none;
+    border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted);
+    transform: rotate(45deg) translateY(-2px);
+  }
+  main.gross-transkript { grid-template-rows: 2fr 1fr; }
+  main.gross-protokoll { grid-template-rows: 1fr 2fr; }
+  main.gross-transkript .pane:first-child > h2::after,
+  main.gross-protokoll .pane:last-child > h2::after {
+    transform: rotate(225deg) translateY(-2px);
+  }
+  .content { padding: 12px; }
+
+  /* Die Feedback-Leiste kostete 67 der 300 Pixel des Protokolls. Ihr Auslöser
+     zieht in die Überschrift zu den anderen Symbolschaltern; der Rahmen
+     darunter bleibt leer, bis er wirklich gebraucht wird. */
+  .pane > h2 #feedback-open span { display: none; }
+  .feedback { padding: 0; border-top: 0; }
+  .feedback:has(#feedback-panel[hidden]) .notes:empty { display: none; }
+  #feedback-panel:not([hidden]) { padding: 10px 12px 14px; border-top: 1px solid var(--line); }
+  /* Die Fußzeile brach auf drei Zeilen um und nahm dem Text die Fläche weg.
+     Sie darf hier abgeschnitten werden - wer die Einstellungen genau wissen
+     will, öffnet das Zahnrad. */
+  footer { padding: 6px 12px; flex-wrap: nowrap; gap: 8px; font-size: 11px; }
+  footer #meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+                 min-width: 0; }
+  footer a, footer .linklike { white-space: nowrap; flex-shrink: 0; }
+  footer .version { white-space: nowrap; }
+
+  /* iOS zoomt beim Hineintippen, sobald die Schrift kleiner als 16px ist. */
+  input, textarea, select { font-size: 16px; }
+
+  dialog {
+    width: calc(100vw - 20px); max-width: none; max-height: 85dvh;
+    overflow-y: auto; padding: 16px;
+  }
+}
+
+/* --- Icons ----------------------------------------------------------- */
+/* Strichzeichnungen: Farbe und Strichstärke kommen vom Knopf, damit ein Icon
+   in jedem Zustand (normal, aktiv, deaktiviert) mitzieht. */
+.sprite { display: none; }
+.icon {
+  width: 16px; height: 16px; flex: none;
+  fill: none; stroke: currentColor;
+  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+}
+.icon.filled { fill: currentColor; stroke: none; }
+
+/* --- Pegelanzeige ---------------------------------------------------- */
+/* [hidden] muss gewinnen - eigene display-Regeln setzen es sonst ausser Kraft. */
+[hidden] { display: none !important; }
+
+.meter {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 10px; border-radius: 7px;
+  background: var(--panel); border: 1px solid var(--line);
+  color: var(--muted);
+}
+.meter-bars { display: flex; align-items: flex-end; gap: 2px; height: 16px; }
+.meter-bars span {
+  width: 3px; border-radius: 1px;
+  background: var(--line);
+  transition: background-color .06s linear;
+}
+/* Ansteigende Höhe, damit die Anzeige auch ohne Farbe als Pegel lesbar ist. */
+.meter-bars span:nth-child(1) { height: 5px; }
+.meter-bars span:nth-child(2) { height: 7px; }
+.meter-bars span:nth-child(3) { height: 8px; }
+.meter-bars span:nth-child(4) { height: 10px; }
+.meter-bars span:nth-child(5) { height: 11px; }
+.meter-bars span:nth-child(6) { height: 13px; }
+.meter-bars span:nth-child(7) { height: 14px; }
+.meter-bars span:nth-child(8) { height: 16px; }
+.meter-bars span.on { background: var(--accent); }
+.meter-bars span.on.peak { background: var(--warn); }
+.meter.live { color: var(--accent); border-color: var(--accent); }
+
+/* --- Knöpfe ---------------------------------------------------------- */
+button { font: inherit; cursor: pointer; }
+/* Nicht an `button` binden: der Hinweis auf die lokale Fassung benutzt
+   dieselben Stile für einen Link. */
+.primary, .ghost, .icon-button {
+  display: inline-flex; align-items: center; gap: 7px;
+  font: inherit; cursor: pointer; text-decoration: none;
+  border-radius: 7px; border: 1px solid transparent;
+}
+.primary {
+  font-size: 13px; font-weight: 550; padding: 7px 13px;
+  background: var(--accent); color: var(--accent-fg); border: 0;
+}
+.ghost {
+  font-size: 13px; padding: 6px 12px;
+  background: var(--panel); color: var(--fg); border-color: var(--line);
+}
+.icon-button {
+  padding: 6px; background: var(--panel); color: var(--muted);
+  border-color: var(--line); justify-content: center;
+}
+/* Aufnahme beenden ist der eine Griff, den man nicht versehentlich treffen
+   soll und im Ernstfall sofort finden muss - also in der Warnfarbe, sobald er
+   überhaupt etwas tut. */
+#stop:not(:disabled) { color: var(--warn); border-color: var(--warn); }
+#stop:not(:disabled):hover { background: var(--warn); color: #fff; }
+.transport { display: flex; gap: 8px; align-items: center; }
+.icon-button.small {
+  padding: 3px; background: none; border-color: transparent; color: var(--muted);
+}
+.ghost:hover:not(:disabled),
+.icon-button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+button:disabled { opacity: .4; cursor: default; }
+.wide { width: 100%; justify-content: center; }
+.copied { color: var(--accent); border-color: var(--accent); }
+.spacer { flex: 1; }
+
+/* --- Feedback -------------------------------------------------------- */
+.feedback { border-top: 1px solid var(--line); padding: 10px 18px 14px; }
+.feedback textarea {
+  width: 100%; font: inherit; font-size: 13px; padding: 8px; margin-top: 8px;
+  background: var(--panel); color: var(--fg);
+  border: 1px solid var(--line); border-radius: 6px; resize: vertical;
+}
+.feedback-buttons { display: flex; gap: 8px; align-items: center; margin-top: 8px; }
+button#feedback-dictate[data-recording="true"] {
+  border-color: var(--warn); color: var(--warn); background: var(--panel);
+}
+.notes { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.note-chip {
+  font-size: 12px; color: var(--muted); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px;
+}
+
+/* --- Einstellungen ---------------------------------------------------- */
+dialog {
+  border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px;
+  background: var(--panel); color: var(--fg); max-width: 460px; width: 92%;
+  /* Der Dialog ist inzwischen hoeher als kleine Fenster - sonst wird oben
+     abgeschnitten, inklusive Ueberschrift. */
+  max-height: 86vh; overflow-y: auto;
+}
+dialog::backdrop { background: rgba(0, 0, 0, .45); }
+/* Messwerte, nur in der Testfassung. Bewusst nüchtern: Das ist ein
+   Instrument, keine Mitteilung an den Nutzer. */
+.measure {
+  width: 100%; margin: 6px 0 0; font-size: 11px; color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+dialog h3 { margin: 0 0 14px; font-size: 15px; }
+.field textarea {
+  width: 100%; box-sizing: border-box; resize: vertical;
+  padding: 7px 9px; font: inherit; font-size: 13px;
+  background: var(--bg); color: var(--fg);
+  border: 1px solid var(--line); border-radius: 7px;
+}
+/* Zeigt, dass ein Rahmen hinterlegt ist - ohne einen zweiten Knopf dafür. */
+#context-open.has-context { border-color: var(--accent); color: var(--accent); }
+.field {
+  display: flex; flex-direction: column; gap: 5px; margin-top: 14px;
+  font-size: 12px; color: var(--muted);
+  /* align-items der allgemeinen label-Regel zuruecksetzen - im Spaltenlayout
+     zentriert "center" sonst horizontal. */
+  align-items: stretch;
+}
+.field .row { display: flex; align-items: center; gap: 7px; color: var(--fg); font-size: 13px; }
+.field input, .field select {
+  font: inherit; font-size: 13px; padding: 6px 8px; color: var(--fg);
+  background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+}
+.field input[type="number"] { width: 88px; }
+.field-head { display: flex; align-items: center; gap: 6px; }
+.note { font-size: 12px; color: var(--muted); margin: 5px 0 0; }
+.note.warn { color: var(--warn); }
+.note:empty { display: none; }
+
+/* --- Hilfetexte -------------------------------------------------------- */
+.help-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; padding: 0; flex: none;
+  border-radius: 50%; border: 1px solid var(--line);
+  background: var(--panel); color: var(--muted); cursor: pointer;
+}
+.help-toggle .icon { width: 11px; height: 11px; }
+.help-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.help-toggle[aria-expanded="true"] {
+  background: var(--accent); border-color: var(--accent); color: var(--accent-fg);
+}
+.help-text {
+  font-size: 12px; color: var(--muted); margin: 6px 0 0; padding: 8px 10px;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 6px;
+}
+.dialog-buttons { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+/* --- Hinweis auf die lokale Fassung (nur gehosteter Betrieb) ---------- */
+.hint {
+  position: fixed; right: 18px; bottom: 46px; z-index: 20;
+  display: flex; align-items: flex-start; gap: 12px;
+  width: min(430px, calc(100vw - 36px)); padding: 14px 16px;
+  background: var(--panel); color: var(--fg);
+  border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, .28);
+}
+.hint .icon { margin-top: 2px; color: var(--accent); }
+.hint strong { font-size: 13px; }
+.hint p { margin: 4px 0 0; font-size: 12px; color: var(--muted); }
+.hint .ghost { align-self: center; white-space: nowrap; }
+
+/* Steht im Fluss und schiebt den Inhalt: Ein stiller Aufnahmeausfall ist
+   kein Fall für eine Einblendung am Bildschirmrand. */
+.warning {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--warn);
+  background: color-mix(in srgb, var(--warn) 14%, var(--bg));
+  color: var(--fg);
+}
+.warning .icon { color: var(--warn); flex-shrink: 0; }
+.warning strong { font-size: 13px; }
+.warning p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+.warning .ghost { margin-left: auto; white-space: nowrap; flex-shrink: 0; }
+
+/* Die Lücke ist kein Gesagtes - sie wird als Vermerk gesetzt, nicht als
+   Absatz, damit niemand sie für Transkript hält. */
+.seg.gap {
+  font-style: italic; color: var(--warn); font-size: 12px;
+  border-left: 2px solid var(--warn); padding-left: 8px; margin: 10px 0;
+}
+
+/* --- Erstinstallation ------------------------------------------------- */
+.overlay {
+  position: fixed; inset: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, .55);
+}
+.overlay .card {
+  width: min(460px, calc(100vw - 40px)); padding: 22px 24px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+}
+.overlay h2 { font-size: 16px; margin: 0 0 8px; padding: 0; border: 0;
+              text-transform: none; letter-spacing: 0; color: var(--fg); }
+.overlay p { font-size: 13px; color: var(--muted); margin: 0; }
+.progress { margin-top: 16px; }
+.progress-bar { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.progress-bar span {
+  display: block; height: 100%; width: 0%;
+  background: var(--accent); transition: width .3s ease;
+}
+dialog h4 {
+  font-size: 12px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted); margin: 24px 0 4px;
+  border-top: 1px solid var(--line); padding-top: 16px;
+}
+
+/* --- Update-Hinweis --------------------------------------------------- */
+/* Sitzt über dem Hinweis auf die lokale Fassung; beide zugleich gibt es
+   nicht, der eine ist Desktop-, der andere gehostet. */
+#update-hint { bottom: 46px; }
+footer { display: flex; gap: 12px; align-items: center; }
+footer a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+footer a:hover { color: var(--accent); }
+/* Knöpfe, die wie ein Link aussehen - damit die Fußzeile eine Zeile bleibt. */
+.linklike {
+  background: none; border: none; padding: 0; font: inherit; color: inherit;
+  text-decoration: underline; text-underline-offset: 2px; cursor: pointer;
+}
+.linklike:hover { color: var(--accent); }
+.badge {
+  font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 10px;
+  background: var(--accent); color: var(--accent-fg);
+}
+.version { margin-left: auto; opacity: .7; font-variant-numeric: tabular-nums; }
+
+/* -- Schalter Live-Protokoll ------------------------------------------------ */
+.switch { display: inline-flex; align-items: center; gap: 7px; font-size: 13px;
+          color: var(--muted); cursor: pointer; user-select: none; }
+.switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch-track { position: relative; width: 32px; height: 18px; border-radius: 9px;
+                background: var(--line); transition: background .15s; flex: none; }
+.switch-track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px;
+                       height: 14px; border-radius: 50%; background: var(--panel);
+                       transition: transform .15s; }
+.switch input:checked + .switch-track { background: var(--accent); }
+.switch input:checked + .switch-track::after { transform: translateX(14px); }
+.switch input:checked ~ .switch-label { color: var(--fg); }
+.switch input:focus-visible + .switch-track { outline: 2px solid var(--accent); outline-offset: 2px; }
+.switch input:disabled ~ * { opacity: .5; cursor: default; }
+@media (prefers-reduced-motion: reduce) {
+  .switch-track, .switch-track::after { transition: none; }
+}
+
+/* -- Hinweis am Telefon ------------------------------------------------------ */
+.phone-hint { margin: 6px 0 0; font-size: 12px; color: var(--muted); max-width: 60ch; }
+
+/* -- Export-Menü ------------------------------------------------------------- */
+.menu-anchor { position: relative; display: inline-flex; }
+.menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 30; min-width: 220px;
+        display: flex; flex-direction: column; padding: 4px; background: var(--panel);
+        border: 1px solid var(--line); border-radius: 8px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, .15); }
+.menu[hidden] { display: none; }
+.menu button { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 0;
+               border-radius: 6px; background: none; color: var(--fg); font-size: 13px;
+               text-align: left; font-weight: 400; }
+.menu button:hover, .menu button:focus-visible { background: var(--bg); color: var(--accent); }
+
+/* -- Dialog Zusammenfassen --------------------------------------------------- */
+#summary-dialog { max-width: 520px; }
+fieldset.field { border: 0; padding: 0; margin: 0 0 14px; min-width: 0; }
+fieldset.field legend { padding: 0; margin-bottom: 6px; font-size: 13px; color: var(--muted); }
+.choices { display: flex; flex-direction: column; gap: 6px; }
+.choices.row { flex-direction: row; flex-wrap: wrap; }
+.choice { display: flex; gap: 10px; align-items: flex-start; padding: 9px 11px;
+          border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+.choice:has(input:checked) { border-color: var(--accent); }
+.choice input { margin: 3px 0 0; accent-color: var(--accent); }
+.choice strong { font-size: 13px; }
+.choice .note { margin-top: 2px; }
+.choices.row .choice { padding: 6px 10px; align-items: center; }
+.checks { display: flex; flex-direction: column; gap: 5px; font-size: 13px; }
+.checks label { display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.checks input { accent-color: var(--accent); }
+
+/* -- Tabellen im Protokoll (Aufgabentabelle) ------------------------------------ */
+.content table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; font-size: 13px; }
+.content th, .content td { border: 1px solid var(--line); padding: 5px 8px;
+                           text-align: left; vertical-align: top; }
+.content th { background: var(--bg); font-weight: 600; }
+.content .table-wrap { overflow-x: auto; }
+
+/* -- Sprecher (M3) --------------------------------------------------------------- */
+#speaker-dialog { max-width: 620px; width: calc(100% - 32px); }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; margin: 10px 0 12px; }
+.tabs button { padding: 5px 10px; border: 1px solid var(--line); border-radius: 999px;
+               background: none; color: var(--fg); font-size: 12px; }
+.tabs button[aria-selected="true"] { border-color: var(--accent); background: var(--accent);
+                                     color: var(--accent-fg); }
+.samples { display: flex; flex-direction: column; gap: 6px; margin-top: 10px;
+           max-height: 40vh; overflow-y: auto; }
+.sample { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
+.sample time { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 38px; }
+.checks-row { display: flex; gap: 8px; align-items: center; font-size: 13px; cursor: pointer;
+              margin: 4px 0; }
+.checks-row input { accent-color: var(--accent); }
+.small-button { font-size: 12px; padding: 4px 10px; margin-top: 6px; }
+.small-select { font: inherit; font-size: 12px; padding: 2px 4px; border: 1px solid var(--line);
+                border-radius: 6px; background: var(--panel); color: var(--fg); max-width: 140px; }
+.seg .spk { border: 0; background: none; padding: 0 6px 0 0; font: inherit; font-weight: 600;
+            color: var(--accent); cursor: pointer; }
+.seg .spk:hover { text-decoration: underline; }
+.seg.hidden-by-filter { display: none; }
+
+/* -- Protokoll-Editor (M4) ------------------------------------------------------- */
+.editing { flex: 1; display: flex; flex-direction: column; padding: 12px 18px; min-height: 0; }
+.editing textarea { flex: 1; min-height: 240px; width: 100%; box-sizing: border-box;
+                    font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+                    background: var(--panel); color: var(--fg); border: 1px solid var(--line);
+                    border-radius: 8px; padding: 10px; resize: vertical; }
+.annotations { border-top: 1px solid var(--line); padding: 10px 18px 14px; }
+.annotation-chip { display: flex; gap: 8px; align-items: flex-start; font-size: 12px;
+                   padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; }
+.annotation-chip .zitat { color: var(--muted); font-style: italic; }
+.annotation-chip .spacer { flex: 1; }
+.change-chip { border-style: dashed; }
+.change-chip del { color: var(--warn); }
+.change-chip ins { color: var(--accent); text-decoration: none; }
+.floating { position: fixed; z-index: 30; padding: 5px 10px; font-size: 12px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .2); }
+
+/* -- Einstellungen: knapp -------------------------------------------------------- */
+#settings { max-width: 460px; }
+#settings .checks-row { margin-top: 14px; }
+.sub-options { margin: 6px 0 0 24px; }
+details.more { margin-top: 10px; font-size: 13px; }
+details.more summary { cursor: pointer; color: var(--muted); }
+
+/* -- Öffnen und Meine Sitzungen -------------------------------------------------- */
+#open-dialog, #vault-dialog { max-width: 520px; width: calc(100% - 32px); }
+#vault-dialog input[type="password"] { display: block; width: 100%; box-sizing: border-box;
+  margin-top: 8px; font: inherit; padding: 7px 9px; border: 1px solid var(--line);
+  border-radius: 6px; background: var(--panel); color: var(--fg); }
+#open-dialog .primary, #vault-dialog .primary { margin-top: 8px; }
+#open-file { display: inline-flex; gap: 6px; align-items: center; }
+.vault-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px;
+              max-height: 45vh; overflow-y: auto; }
+.vault-item { display: flex; gap: 6px; align-items: center; border: 1px solid var(--line);
+              border-radius: 8px; padding: 4px 6px 4px 0; }
+.vault-item.current { border-color: var(--accent); }
+.vault-open { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start;
+              gap: 2px; border: 0; background: none; color: var(--fg); padding: 6px 10px;
+              text-align: left; font: inherit; cursor: pointer; }
+.vault-open strong { font-size: 13px; overflow: hidden; text-overflow: ellipsis;
+                     white-space: nowrap; max-width: 100%; }
+.vault-open .note { margin: 0; }
+.vault-open:hover strong { color: var(--accent); }
+.note.warn { color: var(--warn); }
+
+/* -- Transkript bearbeiten -------------------------------------------------------- */
+.seg .spk.mixed { color: var(--warn); font-style: italic; }
+.editing-transcript .edit-row { display: flex; flex-direction: column; gap: 3px;
+                                padding: 6px 0; border-bottom: 1px dashed var(--line); }
+.editing-transcript .edit-row.hidden-by-filter { display: none; }
+.edit-head { display: flex; gap: 6px; align-items: center; }
+.edit-head time { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; }
+.edit-row textarea { width: 100%; box-sizing: border-box; resize: none; overflow: hidden;
+                     font: inherit; line-height: 1.5; padding: 4px 6px; color: var(--fg);
+                     background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+.edit-row textarea:focus { outline: none; border-color: var(--accent); }
+.editing-bar { display: flex; gap: 8px; align-items: center; padding: 8px 18px;
+               border-top: 1px solid var(--line); }
+.editing-bar[hidden] { display: none; }
+
+/* -- Zurück zur Zusammenfassung ---------------------------------------------------- */
+.floating-bottom { position: fixed; z-index: 25; left: 50%; bottom: 52px; white-space: nowrap;
+                   transform: translateX(-50%); display: inline-flex; gap: 6px;
+                   align-items: center; padding: 9px 16px; border-radius: 999px;
+                   box-shadow: 0 6px 20px rgba(0, 0, 0, .25); }
+.floating-bottom[hidden] { display: none; }
+/* Solange der Knopf steht, bekommt er eigenen Platz über der Fußzeile -
+   sonst verdeckt er am Telefon die Knöpfe unter dem Protokoll. */
+body.zurueck-sichtbar main { padding-bottom: 58px; }
+
+/* -- Verbrauch ------------------------------------------------------------------- */
+#usage-dialog { max-width: 640px; width: calc(100% - 32px); }
+
+/* -- Neuigkeiten ------------------------------------------------------------------ */
+#news-dialog { max-width: 560px; width: calc(100% - 32px); }
+#news-body { max-height: 60vh; overflow-y: auto; }
+.news-version { margin: 14px 0 6px; font-size: 13px; }
+.news-version:first-child { margin-top: 0; }
+.news-version .note { font-weight: normal; margin-left: 6px; }
+.news-list { margin: 0; padding-left: 18px; }
+.news-list li { margin-bottom: 8px; }
+.news-list strong { font-size: 13px; }
+.news-list p { margin: 2px 0 0; font-size: 13px; color: var(--muted); }
+.usage-user { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px;
+              margin-top: 6px; font-size: 13px; }
+.usage-user summary { cursor: pointer; }
+.usage-user table { border-collapse: collapse; width: 100%; margin-top: 6px; font-size: 12px; }
+.usage-user th, .usage-user td { border-bottom: 1px solid var(--line); padding: 4px 6px;
+                                 text-align: left; }
+.usage-user .table-wrap { overflow-x: auto; }
+#quota.warn { color: var(--warn); }
+
+/* -- Glossare ------------------------------------------------------------------ */
+.glossaries { display: flex; flex-direction: column; gap: 6px; }
+details.glossary { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 13px; }
+details.glossary summary { cursor: pointer; display: flex; gap: 8px; align-items: center; }
+details.glossary summary input { accent-color: var(--accent); }
+details.glossary input[type="text"], details.glossary textarea {
+  display: block; width: 100%; box-sizing: border-box; margin-top: 6px; font: inherit;
+  padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px;
+  background: var(--panel); color: var(--fg); }
+details.glossary .linklike { margin-top: 6px; font-size: 12px; color: var(--muted); }
+#correct-dialog input[type="text"] { width: 100%; box-sizing: border-box; }
+#settings fieldset.field { margin-top: 14px; }

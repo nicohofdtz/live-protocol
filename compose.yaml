@@ -1,0 +1,60 @@
+# Server-Fassung: `cp .env.example .env`, einen Anbieter eintragen, dann
+#
+#   docker compose up
+#
+# und http://localhost:8000 öffnen. Von einem anderen Gerät aus braucht es
+# HTTPS (Reverse Proxy davor), sonst gibt der Browser das Mikrofon nicht frei.
+#
+# Mit lokaler Transkription über whisper.cpp:
+#
+#   docker compose --profile whisper up
+#
+# und in der .env WHISPER_URL=http://whisper:8081. Beim ersten Start lädt der
+# whisper-Dienst das Modell (WHISPER_MODEL, Vorgabe large-v3-turbo-q5_0, rund
+# 570 MB) in ein eigenes Volume. Ohne GPU ist large-v3-turbo auf vielen
+# Servern langsamer als Echtzeit; dann ein kleineres Modell wählen, etwa
+# WHISPER_MODEL=small.
+
+services:
+  live-protocol:
+    build: .
+    image: live-protocol
+    env_file: .env
+    # Nur auf diesem Rechner erreichbar: Ohne AUTH_PROXY gibt es keine
+    # Anmeldung, und wer den Port erreicht, nutzt die Schlüssel aus der .env.
+    # Ein Reverse Proxy auf demselben Rechner erreicht ihn so trotzdem. Läuft
+    # der Proxy woanders, "8000:8000" eintragen und den Zugang anders absichern
+    # (Firewall, VPN, Anmeldung im Proxy).
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - daten:/data
+      # Eigene Dateien der Instanz (Impressum, Hinweis, Logo …), siehe
+      # docs/overlay.md. Einkommentieren und OVERLAY_DIR=/overlay setzen.
+      # - ./overlay:/overlay:ro
+    # Damit ein Dienst auf dem Rechner selbst (etwa Ollama) unter
+    # http://host.docker.internal erreichbar ist, auch unter Linux.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  # Offizielles Abbild von whisper.cpp (ggml-org), täglich neu gebaut.
+  whisper:
+    profiles: ["whisper"]
+    image: ghcr.io/ggml-org/whisper.cpp:main
+    environment:
+      WHISPER_MODEL: ${WHISPER_MODEL:-large-v3-turbo-q5_0}
+    # Das Abbild startet `bash -c` mit diesem Befehl. $$ reicht ein $ an die
+    # Shell im Container durch, statt es hier einzusetzen.
+    command:
+      - >-
+        /app/models/download-ggml-model.sh "$$WHISPER_MODEL" /models &&
+        exec whisper-server --host 0.0.0.0 --port 8081 -l de -sow
+        -m "/models/ggml-$$WHISPER_MODEL.bin"
+    volumes:
+      - whisper-modelle:/models
+    restart: unless-stopped
+
+volumes:
+  daten:
+  whisper-modelle:

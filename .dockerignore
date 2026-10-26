@@ -1,0 +1,11 @@
+.git
+.github
+.venv
+.env
+**/__pycache__
+build
+experiments
+tests
+tools
+docs
+README.md

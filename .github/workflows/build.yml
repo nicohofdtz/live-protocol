@@ -1,0 +1,122 @@
+# Baut die auslieferbaren Fassungen.
+#
+# Warum CI und nicht lokal: Vom Mac aus lässt sich keine Windows-Fassung
+# erzeugen - whisper.cpp und die Python-Bündelung sind beide nativ. Ein
+# Windows-Läufer ist der einzige praktikable Weg.
+#
+# Kein Intel-Mac: Der Build dafür ist in der CI fehlgeschlagen und wird nicht
+# gepflegt. Auf einem Intel-Mac liefe das lokale large-v3-turbo ohnehin am
+# Anschlag - genau die Rechenleistung, die diese Fassung voraussetzt. Wer so
+# ein Gerät hat, nimmt eine Server-Fassung im Browser; dort rechnet der
+# Dienst. Ein echtes Universal Binary wäre die Alternative gewesen, setzt aber
+# ein universal2-Python samt universal2-Abhängigkeiten voraus.
+#
+# Bei einem Tag v* hängen die Bündel danach an einem Release-ENTWURF.
+# Veröffentlicht wird von Hand: Erst wer die Bündel ausprobiert hat, gibt sie
+# frei - und erst dann meldet die Update-Prüfung die neue Fassung.
+
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+jobs:
+  # Ein Entwurf je Tag, angelegt bevor die Bündel gebaut werden. Legten ihn
+  # die beiden Bau-Läufer selbst an, entstünden bei gleichzeitigem Ende zwei.
+  draft:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Release-Entwurf anlegen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 \
+            || gh release create "$TAG" --draft --verify-tag \
+                 --title "$TAG" --generate-notes
+
+  build:
+    needs: draft
+    # Ohne Tag (workflow_dispatch) gibt es keinen Entwurf; gebaut wird trotzdem.
+    if: ${{ !cancelled() && (needs.draft.result == 'success' || needs.draft.result == 'skipped') }}
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-14
+            ziel: macos-arm64
+          - os: windows-latest
+            ziel: windows-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+
+      - name: Abhängigkeiten
+        run: uv sync
+
+      - name: Bauen (macOS)
+        if: runner.os == 'macOS'
+        run: ./build/build.sh
+
+      - name: Bauen (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          git clone --depth 1 --branch v1.9.3 https://github.com/ggml-org/whisper.cpp build/whisper.cpp
+          cmake -S build/whisper.cpp -B build/whisper.cpp/out `
+            -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF `
+            -DWHISPER_BUILD_TESTS=OFF -DWHISPER_BUILD_EXAMPLES=ON
+          cmake --build build/whisper.cpp/out --config Release --target whisper-server
+          New-Item -ItemType Directory -Force build/bin | Out-Null
+          Get-ChildItem -Recurse build/whisper.cpp/out -Filter whisper-server.exe |
+            Select-Object -First 1 | Copy-Item -Destination build/bin/
+          uv run --with pyinstaller pyinstaller --noconfirm --clean `
+            --distpath build/dist --workpath build/work build/live-protocol.spec
+
+      # Gepackt wird auf dem Läufer, nicht beim Herunterladen: Die
+      # Artefakt-Ablage kennt keine symbolischen Verweise und löst sie in
+      # echte Kopien auf. Ein macOS-Bündel wird dadurch fast doppelt so groß,
+      # weil PyInstaller Frameworks und Resources über Verweise teilt. `ditto`
+      # erhält sie - und gleich auch die Rechte und die Bündel-Struktur.
+      - name: Packen (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          mkdir -p build/out
+          ditto -c -k --sequesterRsrc --keepParent \
+            "build/dist/Live-Protokoll.app" \
+            "build/out/live-protocol-${{ matrix.ziel }}.zip"
+
+      - name: Packen (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force build/out | Out-Null
+          Compress-Archive -Path build/dist/live-protocol `
+            -DestinationPath "build/out/live-protocol-${{ matrix.ziel }}.zip"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: live-protocol-${{ matrix.ziel }}
+          path: build/out/
+
+      - name: An den Release-Entwurf hängen
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release upload "${{ github.ref_name }}" \
+            "build/out/live-protocol-${{ matrix.ziel }}.zip" --clobber
