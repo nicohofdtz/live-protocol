@@ -1,0 +1,23 @@
+# Fiktive Besprechung für Screenshots und Demo-Video.
+# Format: SPRECHER: Text. Leerzeilen und Zeilen mit # werden übersprungen.
+# Die Stimmen ordnet make_audio.sh zu.
+
+JULIA: Guten Morgen zusammen. Heute geht es um eine Frage: Lösen wir unser Support-Postfach durch ein Ticketsystem ab? Tobias, du hast dir zwei Kandidaten angesehen.
+TOBIAS: Genau. Im Rennen sind Zammad und Freshdesk. Zammad ist quelloffen und läuft auf unserem eigenen Server. Freshdesk ist ein Cloud-Dienst, schnell eingerichtet, kostet aber pro Arbeitsplatz rund fünfzehn Euro im Monat.
+JONAS: Für mich zählt vor allem, dass die Kundendaten in Europa bleiben. Bei Freshdesk müssten wir das erst prüfen.
+JULIA: Das ist ein guter Punkt. Wie viel Aufwand wäre der eigene Betrieb?
+TOBIAS: Die Installation schaffe ich in zwei Tagen. Danach vielleicht eine Stunde pro Woche für Updates und Sicherungen.
+JONAS: Dann bin ich klar für Zammad. Wir sind nur sechs Leute im Support, das lohnt sich.
+JULIA: Gut, dann halten wir fest: Wir führen Zammad ein und betreiben es selbst. Freshdesk ist damit raus.
+TOBIAS: Einverstanden. Ich würde vorher eine Testinstallation aufsetzen, damit alle einmal damit arbeiten können.
+JULIA: Bis wann schaffst du das?
+TOBIAS: Bis Ende nächster Woche, also bis zum vierzehnten.
+JONAS: Ich sammle bis dahin unsere zwanzig häufigsten Kundenanfragen und baue daraus Textbausteine.
+JULIA: Sehr gut. Offen ist noch, ob wir das alte Postfach parallel weiterlaufen lassen.
+JONAS: Ich würde es einen Monat lang weiterleiten und dann abschalten. Sonst schauen wir an zwei Stellen nach.
+TOBIAS: Ein Monat reicht. Die Weiterleitung richte ich gleich mit ein.
+JULIA: Dann ist auch das entschieden: Ein Monat Weiterleitung, danach wird das Postfach abgeschaltet. Ich informiere die Kunden mit dem nächsten Newsletter über die neue Adresse.
+JONAS: Eine Frage noch: Brauchen wir eine Schulung?
+JULIA: Lass uns das nach dem Test entscheiden. Wir treffen uns am einundzwanzigsten wieder und schauen gemeinsam auf die Testinstallation.
+TOBIAS: Passt. Ich schicke die Zugangsdaten vorher rum.
+JULIA: Danke euch, dann bis zum einundzwanzigsten.

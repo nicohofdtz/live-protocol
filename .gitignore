@@ -14,3 +14,6 @@ build/whisper.cpp/
 
 # Eigene Dateien einer Instanz (siehe docs/overlay.md)
 /overlay/
+
+# Erzeugtes Demo-Audio (tools/screenshots/make_audio.sh)
+tools/screenshots/out/
