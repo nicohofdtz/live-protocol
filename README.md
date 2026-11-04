@@ -1,16 +1,56 @@
 # Live-Protokoll
 
-Schreibt Besprechungen mit: links das Transkript, das während der Aufnahme
-entsteht, rechts nach dem Termin ein Protokoll, das ein Sprachmodell aus dem
-ganzen Transkript zusammenfasst. Läuft als Programm auf dem eigenen Rechner
-(Transkription lokal mit Whisper) oder als Dienst auf einem Server im
-Browser.
+**Aufnahme starten, Besprechung führen, fertiges Protokoll mitnehmen.**
 
-Zwei Modi: **Besprechungsprotokoll** und **Konzept aus Brainstorming** (frei
-eingesprochene Idee wird zu einem strukturierten Konzept). Dazu Sprecher
-unterscheiden, Glossare für Eigennamen, Korrekturen im Transkript,
-Anmerkungen ans Protokoll, Export als Markdown oder Word und Projekte als
+Live-Protokoll schreibt Besprechungen mit: links entsteht während der Aufnahme
+das Transkript, rechts danach ein Protokoll mit Entscheidungen, Aufgaben und
+offenen Fragen. Das Programm läuft auf dem eigenen Rechner, die Transkription
+auf Wunsch komplett lokal mit Whisper. Für die Zusammenfassung genügt ein
+Schlüssel für Mistral oder einen OpenAI-kompatiblen Dienst, oder ein lokales
+Ollama.
+
+[**Für Mac und Windows herunterladen**](https://github.com/nicohofdtz/live-protocol/releases)
+· [Schnellstart](#schnellstart-desktop)
+· [Auf einem Server betreiben](#schnellstart-server)
+
+![Fertiges Besprechungsprotokoll: Links das Transkript einer Besprechung über die Einführung eines Ticketsystems mit den Sprechern Julia, Tobias und Jonas, rechts das daraus erzeugte Protokoll mit Kurzfassung, Entscheidungen und offenen Fragen.](docs/bilder/protokoll.png)
+
+## Was es kann
+
+**Mitschreiben, während gesprochen wird.** Das Transkript wächst live mit, auf
+Wunsch schreibt sich auch das Protokoll schon während der Aufnahme fort. Eine
+fertige Audiodatei lässt sich ebenso hochladen.
+
+![Laufende Aufnahme: Oben der Mikrofonpegel und der Pause-Knopf, links wächst das Transkript mit Zeitmarken, die letzte Zeile ist noch vorläufig und kursiv, rechts steht schon das Live-Protokoll.](docs/bilder/aufnahme-live.png)
+
+**Verhörer einmal korrigieren.** Ein Wort markieren, richtig schreiben, fertig:
+Die Korrektur gilt auf Wunsch überall im Transkript und auch für alles, was
+danach noch gesagt wird. Sie landet im Glossar und hilft Erkennung und
+Zusammenfassung beim nächsten Mal.
+
+![Dialog zur Korrektur: Das verhörte Wort „ZAMAT“ wird durch Zammad ersetzt, angehakt sind „Überall im Transkript ersetzen“ und „Ins Glossar aufnehmen“.](docs/bilder/korrektur.png)
+
+**Wissen, wer was gesagt hat.** Nach der Aufnahme unterscheidet die App die
+Sprecher, du hörst kurz rein und vergibst Namen. Aufgaben im Protokoll tragen
+dann die richtigen Personen. Das braucht einen Mistral-Schlüssel.
+
+![Dialog „Sprecher zuordnen“: Drei erkannte Sprecher als Reiter, darunter ein Namensfeld und typische Sätze des Sprechers zum Reinhören.](docs/bilder/sprecher.png)
+
+**Aus Gedanken ein Konzept machen.** Im Modus *Konzept aus Brainstorming*
+sprichst du eine Idee einfach frei ein und bekommst ein strukturiertes Konzept
+mit nächsten Schritten.
+
+![Modus Konzept: Links das frei eingesprochene Transkript einer Idee für ein Reparatur-Café, rechts das daraus entstandene Konzept mit Kurzfassung und nächsten Schritten.](docs/bilder/konzept.png)
+
+**Dazu:** Terminrahmen mit Agenda und Beteiligten, Anmerkungen und Feedback ans
+Protokoll, mehrere Glossare, Export als Markdown oder Word und Projekte als
 ZIP-Datei zum Weiterarbeiten.
+
+**Du entscheidest, wohin deine Daten gehen.** Die Oberfläche sagt bei jedem
+Cloud-Eintrag, was den Rechner verlässt und wie der Anbieter damit umgeht. Im
+Betrieb mit Whisper und Ollama bleiben deine Inhalte auf deinem Rechner.
+
+![Einstellungen: Als Transkription ist „Whisper (lokal)“ gewählt mit dem Hinweis, dass das Audio auf dem Rechner bleibt, darunter Schalter für Live-Protokoll und Sprechererkennung, Glossare und Anbieter-Schlüssel.](docs/bilder/einstellungen.png)
 
 ## Schnellstart: Desktop
 
