@@ -7,9 +7,9 @@ Ergänzung zur README: wie die Anwendung aufgebaut ist, warum, und was die einze
 ```
 Browser                              Backend                    Dienste
 ───────                              ───────                    ───────
-Mikrofon
-  └ getUserMedia
-      └ AudioWorklet (16 kHz PCM)
+Mikrofon + Systemton (optional)
+  └ getUserMedia, getDisplayMedia
+      └ AudioWorklet (16 kHz PCM, Mono-Summe)
           └ WebSocket ──────────────→ (a) Strom ────────────→ Voxtral Realtime
                                         │  Wörter zurück      (stehende
                                         │  → Absätze           WebSocket-
@@ -249,8 +249,13 @@ gehen.
 - **Sprecher nur nachträglich und nur mit Voxtral.** Unterschieden werden sie
   nach dem Beenden über die ganze Aufnahme, bis drei Stunden am Stück. Die
   Aufnahme geht dafür ein zweites Mal an Mistral (rund 18 ct je Stunde).
-- **Nur Mikrofon.** Geräteaudio (Online-Meetings) braucht auf macOS eine
-  virtuelle Soundkarte und ist bewusst nicht umgesetzt.
+- **Systemton nur über die Bildschirmfreigabe.** Er kommt per `getDisplayMedia`,
+  also nur in Chromium-Browsern und unter macOS erst ab 14.2 mit Chrome 141.
+  Mikrofon und Systemton landen als eine Mono-Spur in der Aufnahme. Ohne
+  Kopfhörer nimmt das Mikrofon die Gegenseite zusätzlich auf. Das Desktop-Fenster
+  ist ein Kindprozess des Bündels: macOS rechnet ihm die Bildschirmaufnahme zu,
+  und weil das Bündel nicht signiert ist, verlangt jede neue Version die
+  Erlaubnis noch einmal.
 - **Beim gestückelten Weg ist Latenz strukturell.** Der erste Text kann
   frühestens nach der Mindest-Segmentlänge erscheinen (10 s). Kürzer stellen
   geht nicht sinnvoll: Whisper verarbeitet immer ein 30-Sekunden-Fenster. Der

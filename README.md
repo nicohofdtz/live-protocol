@@ -23,6 +23,14 @@ fertige Audiodatei lässt sich ebenso hochladen.
 
 ![Laufende Aufnahme: Oben der Mikrofonpegel und der Pause-Knopf, links wächst das Transkript mit Zeitmarken, die letzte Zeile ist noch vorläufig und kursiv, rechts steht schon das Live-Protokoll.](docs/bilder/aufnahme-live.png)
 
+**Auch Online-Besprechungen.** Mit *Systemton mitschneiden* in den Einstellungen
+nimmt die App neben dem Mikrofon auf, was der Rechner abspielt, etwa die
+Gegenseite in Teams oder Zoom. Das läuft über die Bildschirmfreigabe von Chrome
+oder Edge: Beim Start den Bildschirm wählen und „Systemton teilen“ einschalten,
+das Bild wird nicht aufgezeichnet. Unter macOS braucht das Version 14.2, Chrome
+oder Edge ab Version 141 und einmalig die Erlaubnis für die Bildschirmaufnahme;
+Firefox und Safari liefern keinen Systemton.
+
 **Verhörer einmal korrigieren.** Ein Wort markieren, richtig schreiben, fertig:
 Die Korrektur gilt auf Wunsch überall im Transkript und auch für alles, was
 danach noch gesagt wird. Sie landet im Glossar und hilft Erkennung und
