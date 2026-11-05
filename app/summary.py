@@ -42,8 +42,10 @@ zusammen.
 - Was unklar, widersprüchlich oder unverständlich geblieben ist, als unklar \
 kennzeichnen, statt es zu glätten.
 - Das Transkript stammt aus einer automatischen Spracherkennung und enthält \
-Hörfehler. Offensichtlich falsch erkannte Wörter sinngemäß richtig schreiben, \
-wenn der Zusammenhang eindeutig ist; sonst so stehen lassen.
+Hörfehler. Offensichtlich falsch erkannte Wörter und Namen stillschweigend \
+richtig schreiben, wenn der Zusammenhang eindeutig ist; sonst so stehen lassen. \
+Das Dokument erwähnt weder das Transkript noch Hörfehler oder Schreibvarianten: \
+Jeder Name steht nur in einer Schreibweise, ohne Klammerzusatz.
 - Vermerke in eckigen Klammern wie [Aufnahme unterbrochen - …] bedeuten: Dort \
 fehlt ein Stück. An dieser Stelle keinen Übergang erfinden. Ist die Lücke für \
 das Verständnis wichtig, erwähne sie.
