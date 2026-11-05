@@ -1,5 +1,15 @@
 [
   {
+    "version": "0.8.0",
+    "date": "2026-11-05",
+    "items": [
+      {
+        "title": "Online-Besprechungen mit Systemton",
+        "text": "In den Einstellungen lässt sich „Systemton mitschneiden“ einschalten. Dann landet neben dem Mikrofon auch die Gegenseite aus Teams oder Zoom in der Aufnahme. Das geht am Rechner in Chrome und Edge: Beim Start den Bildschirm wählen und „Systemton teilen“ einschalten. Das Bild wird nicht aufgezeichnet."
+      }
+    ]
+  },
+  {
     "version": "0.7.0",
     "date": "2026-10-17",
     "items": [

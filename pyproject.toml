@@ -1,6 +1,6 @@
 [project]
 name = "live-protocol"
-version = "0.7.0"
+version = "0.8.0"
 description = "Live-Mitschrift: Transkript und Protokoll während der Aufnahme"
 requires-python = ">=3.11"
 dependencies = [

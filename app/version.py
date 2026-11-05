@@ -5,7 +5,7 @@ Die Zahl steht hier und in `pyproject.toml`; ein Test hält beide zusammen.
 
 from __future__ import annotations
 
-__version__ = "0.7.0"
+__version__ = "0.8.0"
 
 
 def parse(version: str) -> tuple[int, ...]:
