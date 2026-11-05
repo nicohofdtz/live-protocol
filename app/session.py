@@ -123,6 +123,8 @@ class LiveSession:
         self.failed: str | None = None
         self._worker_task: asyncio.Task | None = None
         self._protocol_task: asyncio.Task | None = None
+        self._skip_live_pass = False
+        self._live_run: asyncio.Task | None = None
         self._subscribers: set[asyncio.Queue] = set()
         # Wird nach dem Abschluss einmal gerufen, etwa fürs Verbrauchsprotokoll.
         self.on_finish = None
@@ -257,8 +259,13 @@ class LiveSession:
             self._audio_file.write(pcm)
         self._audio_seconds += len(pcm) / 2 / SAMPLE_RATE
 
-    async def stop(self) -> None:
+    async def stop(self, live_pass: bool = True) -> None:
         """Aufnahme beenden, Restpuffer verarbeiten, letzten Protokolllauf machen.
+
+        `live_pass=False` lässt die letzten Läufe des Live-Modells aus und bricht
+        einen laufenden ab: Wer gleich zusammenfassen lässt, wartet sonst auf ein
+        Protokoll, das die Zusammenfassung ersetzt. Transkribiert wird trotzdem
+        zu Ende.
 
         Darf beliebig oft gerufen werden, der Abschluss läuft genau einmal.
         Der Browser schickt den Stopp über den WebSocket und zusätzlich per
@@ -269,6 +276,10 @@ class LiveSession:
         """
         self.last_activity = time.monotonic()
         self.running = False  # sofort: ab hier nimmt die Sitzung nichts mehr an
+        if not live_pass:
+            self._skip_live_pass = True
+            if self._live_run is not None:
+                self._live_run.cancel()
         if self._stop_task is None:
             self._stop_task = asyncio.get_running_loop().create_task(self._finish())
         await asyncio.shield(self._stop_task)
@@ -284,10 +295,11 @@ class LiveSession:
             except Exception:  # noqa: BLE001 - gemeldet hat es _worker_done
                 pass
             setattr(self, name, None)
-        if self.live_protocol and self._chars_since_update > 0:
-            await self._update_protocol()
-        if self.live_protocol and self.settings.final_pass:
-            await self._polish()
+        if self.live_protocol and not self._skip_live_pass:
+            if self._chars_since_update > 0:
+                await self._update_protocol()
+            if self.settings.final_pass:
+                await self._polish()
         if self._audio_file is not None:
             self._audio_file.close()
         self._persist()
@@ -510,7 +522,7 @@ class LiveSession:
                 await self._update_protocol()
 
     def _should_update(self) -> bool:
-        if not self.live_protocol or self._chars_since_update == 0:
+        if not self.live_protocol or self._chars_since_update == 0 or self._skip_live_pass:
             return False
         if self._chars_since_update >= self.settings.trigger_chars:
             return True
@@ -527,12 +539,21 @@ class LiveSession:
         self.cycle += 1
 
         self._emit({"type": "protocol_pending", "cycle": self.cycle})
+        # Eigene Aufgabe, damit der Stopp nur den Lauf abbrechen kann: Bei den
+        # gestückelten Diensten hängt daran auch die restliche Transkription.
+        self._live_run = asyncio.ensure_future(self.strategy.update(new_text, self.cycle))
         try:
-            result = await self.strategy.update(new_text, self.cycle)
+            result = await self._live_run
+        except asyncio.CancelledError:
+            if not self._live_run.cancelled() or not self._skip_live_pass:
+                raise
+            return
         except AllEndpointsFailed as exc:
             logger.error("Protokoll-Lauf fehlgeschlagen: %s", exc)
             self._emit({"type": "error", "stage": "llm", "message": str(exc)})
             return
+        finally:
+            self._live_run = None
 
         self._emit({
             "type": "protocol",

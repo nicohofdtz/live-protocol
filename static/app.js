@@ -1269,6 +1269,23 @@ async function togglePause() {
   setStatus(paused ? 'pausiert' : 'Aufnahme läuft');
 }
 
+/** Direkt nach dem Stopp kommt der Dialog zur Zusammenfassung, und die entsteht
+ *  allein aus dem Transkript. Ein letzter Lauf des Live-Modells kostete dann nur
+ *  Wartezeit und Geld. */
+function ohneLetztenLiveLauf() {
+  return settings.live_protocol === true && config.summary_models?.length > 0;
+}
+
+async function schliesseSitzung() {
+  const ohneLauf = ohneLetztenLiveLauf();
+  if (ws?.readyState === WebSocket.OPEN) ws.send(ohneLauf ? 'stop-without-live-pass' : 'stop');
+  const ziel = `/api/sessions/${sessionId}/stop${ohneLauf ? '?live_pass=false' : ''}`;
+  const antwort = await (await fetch(ziel, { method: 'POST' })).json();
+  // Ein abgebrochener Lauf meldet sich nicht mehr zurück.
+  ui.cycle.hidden = true;
+  return antwort;
+}
+
 async function stop() {
   recording = false;
   clearInterval(stilleWache);
@@ -1281,7 +1298,8 @@ async function stop() {
   await gibWakeLockFrei();
   ui.toggle.disabled = true;
   ui.stop.disabled = true;
-  setStatus('Aufnahme wird abgeschlossen, letzter Protokolllauf …');
+  setStatus(ohneLetztenLiveLauf() ? 'Aufnahme wird abgeschlossen …'
+    : 'Aufnahme wird abgeschlossen, letzter Protokolllauf …');
 
   workletNode?.disconnect();
   stoppeEingaenge();
@@ -1292,9 +1310,8 @@ async function stop() {
   ui.cycle.hidden = true;
   await biteMitschnittAn();
 
-  if (ws?.readyState === WebSocket.OPEN) ws.send('stop');
   try {
-    const result = await (await fetch(`/api/sessions/${sessionId}/stop`, { method: 'POST' })).json();
+    const result = await schliesseSitzung();
     if (result.protocol) renderProtocol(result.protocol);
     setStatus('fertig');
   } catch (error) {
@@ -1608,9 +1625,7 @@ async function transkribiereDatei(datei, { mitSprechern = false } = {}) {
       await new Promise((r) => setTimeout(r, 800));
     }
     setStatus('Übertragen – die Erkennung läuft noch …');
-    ws.send('stop');
-    const ergebnis = await (await fetch(`/api/sessions/${sessionId}/stop`,
-                                        { method: 'POST' })).json();
+    const ergebnis = await schliesseSitzung();
     if (ergebnis.protocol) renderProtocol(ergebnis.protocol);
     setStatus(`fertig – ${datei.name}`);
     bieteZusammenfassungAn();

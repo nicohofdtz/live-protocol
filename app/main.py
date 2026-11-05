@@ -908,10 +908,16 @@ async def export_session(session_id: str, user: str = Depends(current_user)) -> 
     )
 
 
+# Stopp über den WebSocket, wenn gleich die Zusammenfassung folgt. Muss zum
+# POST passen: Was zuerst ankommt, startet den Abschluss.
+STOP_OHNE_LIVE_LAUF = "stop-without-live-pass"
+
+
 @app.post("/api/sessions/{session_id}/stop")
-async def stop_session(session_id: str, user: str = Depends(current_user)) -> dict:
+async def stop_session(session_id: str, live_pass: bool = True,
+                       user: str = Depends(current_user)) -> dict:
     session = _require(session_id, user)
-    await session.stop()
+    await session.stop(live_pass=live_pass)
     return {"id": session.id, "protocol": session.strategy.protocol,
             "transcript": session.transcript}
 
@@ -967,8 +973,8 @@ async def stream(websocket: WebSocket, session_id: str) -> None:
                 break
             if (data := message.get("bytes")) is not None:
                 await session.add_audio(data)
-            elif message.get("text") == "stop":
-                await session.stop()
+            elif message.get("text") in ("stop", STOP_OHNE_LIVE_LAUF):
+                await session.stop(live_pass=message["text"] == "stop")
                 break
     except WebSocketDisconnect:
         pass

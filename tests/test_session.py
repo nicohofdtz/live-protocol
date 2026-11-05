@@ -463,3 +463,56 @@ async def test_diktat_steht_als_luecke_im_transkript(settings):
     session.note_gap(20, "diktat")
     assert session.transcript[-1]["text"] == "[Diktat - etwa 20 s der Aufnahme fehlen]"
     assert session.transcript[-1]["gap"] is True
+
+
+async def test_stopp_ohne_live_lauf_transkribiert_zu_ende(settings):
+    """Kein letzter Lauf und keine Politur, aber das Transkript ist vollständig."""
+    settings.trigger_chars = 100_000
+    chat = StubChat()
+    session = _meeting(settings, strategy="delta", chat=chat)
+    session.start()
+    await session.add_audio(tone(18.0) + silence(2.0) + tone(18.0))
+    await session.stop(live_pass=False)
+
+    assert session.transcript
+    assert chat.calls == 0
+    assert session.stopped
+    assert (session.dir / "transcript.md").exists()
+
+
+async def test_stopp_ohne_live_lauf_bricht_laufenden_lauf_ab(settings):
+    """Sonst wartete der Stopp doch wieder auf das Live-Modell."""
+    import asyncio
+
+    chat = StubChat()
+    gestartet = asyncio.Event()
+
+    async def haengt(*args, **kwargs):
+        chat.calls += 1
+        gestartet.set()
+        await asyncio.Event().wait()
+
+    chat.complete = haengt
+    session = _meeting(settings, strategy="rewrite", chat=chat)
+    session.start()
+    await session.add_audio(tone(18.0) + silence(2.0) + tone(18.0))
+    await asyncio.wait_for(gestartet.wait(), timeout=5)
+
+    await session.add_audio(tone(18.0) + silence(2.0))
+    await asyncio.wait_for(session.stop(live_pass=False), timeout=5)
+    assert chat.calls == 1
+    assert session.stopped
+    # Am Lauf hing die restliche Transkription: Sie muss trotzdem fertig werden.
+    assert len(session.transcript) == 3
+
+
+async def test_spaeter_stopp_mit_live_lauf_aendert_nichts(settings):
+    """Zeigt der POST nach dem WebSocket-Stopp noch einmal hin: kein zweiter Abschluss."""
+    settings.trigger_chars = 100_000
+    chat = StubChat()
+    session = _meeting(settings, strategy="rewrite", chat=chat)
+    session.start()
+    await session.add_audio(tone(18.0) + silence(2.0))
+    await session.stop(live_pass=False)
+    await session.stop()
+    assert chat.calls == 0

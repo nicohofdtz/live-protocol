@@ -51,6 +51,12 @@ Nach dem Stoppen läuft optional ein **Abschlusslauf** (`FINAL_PASS=true`), der
 die gesammelte Struktur einmal glättet - so bekommt `delta` die konstante
 Latenz während der Sitzung und trotzdem eine ausformulierte Endfassung.
 
+Ist ein Modell für die Zusammenfassung eingerichtet, lässt der Stopp in der
+Oberfläche den letzten Protokolllauf und den Abschlusslauf aus und bricht einen
+laufenden ab (`live_pass=false`). Die Zusammenfassung entsteht aus dem Transkript
+und ersetzt das Protokoll ohnehin. Wer sie ablehnt, behält das Live-Protokoll
+ohne die letzten Sätze; das Transkript ist vollständig.
+
 Empfehlung: `rewrite` für Besprechungen bis etwa 30 Minuten, `delta` +
 Abschlusslauf für längere. Vollständige Messwerte und Begründung:
 **`experiments/BEFUNDE.md`**.

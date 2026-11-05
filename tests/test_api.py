@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from unittest.mock import AsyncMock
 
 import pytest
 from fastapi.testclient import TestClient
@@ -89,6 +90,22 @@ def test_websocket_ohne_proxy_offen(hosted):
     sessions[sid]._stop_task = object()   # gleich wieder schließen
     with hosted.websocket_connect(f"/api/sessions/{sid}/stream"):
         pass
+
+
+def test_stopp_reicht_den_verzicht_auf_den_live_lauf_durch(hosted):
+    sid = hosted.post("/api/sessions", json={"engine": "voxtral"}).json()["id"]
+    session = sessions[sid]
+    session.stop = AsyncMock()
+
+    assert hosted.post(f"/api/sessions/{sid}/stop?live_pass=false").status_code == 200
+    session.stop.assert_awaited_with(live_pass=False)
+    hosted.post(f"/api/sessions/{sid}/stop")
+    session.stop.assert_awaited_with(live_pass=True)
+
+    session.stop.reset_mock()
+    with hosted.websocket_connect(f"/api/sessions/{sid}/stream") as verbindung:
+        verbindung.send_text("stop-without-live-pass")
+    session.stop.assert_awaited_with(live_pass=False)
 
 
 def test_gehostet_bietet_nur_eingerichtete_dienste(hosted):
