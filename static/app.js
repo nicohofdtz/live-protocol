@@ -1562,7 +1562,7 @@ function dateiFaehigerDienst() {
 /** Datei zu 16-kHz-Mono-PCM machen - im Browser, nicht auf dem Server.
  *
  * Der Browser dekodiert mp3, m4a, wav, ogg und flac ohnehin; auf dem Server
- * bräuchte es dafür ffmpeg im Bündel. Das Umrechnen erledigt ein
+ * bräuchte es dafür ffmpeg im Container. Das Umrechnen erledigt ein
  * OfflineAudioContext gleich mit. */
 async function alsPcm(datei) {
   const roh = await datei.arrayBuffer();
@@ -3039,7 +3039,7 @@ async function exportiere(was, format = 'md') {
 
   let blob;
   if (format === 'docx') {
-    // Word baut der Server - python-docx steckt auch im Desktop-Bündel.
+    // Word baut der Server - python-docx steckt auch in der Desktop-App.
     name = name.replace(/\.md$/, '.docx');
     try {
       const antwort = await fetch('/api/export/docx', {

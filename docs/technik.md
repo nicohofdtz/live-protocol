@@ -259,8 +259,8 @@ gehen.
   also nur in Chromium-Browsern und unter macOS erst ab 14.2 mit Chrome 141.
   Mikrofon und Systemton landen als eine Mono-Spur in der Aufnahme. Ohne
   Kopfhörer nimmt das Mikrofon die Gegenseite zusätzlich auf. Das Desktop-Fenster
-  ist ein Kindprozess des Bündels: macOS rechnet ihm die Bildschirmaufnahme zu,
-  und weil das Bündel nicht signiert ist, verlangt jede neue Version die
+  ist ein Kindprozess der App: macOS rechnet ihm die Bildschirmaufnahme zu,
+  und weil die App nicht signiert ist, verlangt jede neue Version die
   Erlaubnis noch einmal.
 - **Beim gestückelten Weg ist Latenz strukturell.** Der erste Text kann
   frühestens nach der Mindest-Segmentlänge erscheinen (10 s). Kürzer stellen

@@ -1,6 +1,6 @@
-# Entwicklung, Versionen, Bündel
+# Entwicklung, Versionen, Apps
 
-Ergänzung zur README für alle, die am Code arbeiten oder eigene Bündel bauen.
+Ergänzung zur README für alle, die am Code arbeiten oder eigene Apps bauen.
 
 ## Ohne Browser testen
 
@@ -26,8 +26,8 @@ Ergebnisse landen unter `~/.local/share/live-protocol/sessions/<id>/`.
 Ablauf: Nummer hochsetzen, Neuigkeiten schreiben, committen, `git tag -a
 vX.Y.Z`, mit Tags pushen. Der Tag startet den Build der Mac- und
 Windows-Fassung (`.github/workflows/build.yml`). Die CI legt dafür einen
-**Release-Entwurf** an und hängt beide Bündel daran. Veröffentlicht wird der
-Entwurf von Hand, nachdem die Bündel ausprobiert sind — erst dann meldet die
+**Release-Entwurf** an und hängt beide Apps daran. Veröffentlicht wird der
+Entwurf von Hand, nachdem die Apps ausprobiert sind — erst dann meldet die
 Update-Prüfung der Desktop-Fassungen die neue Nummer.
 
 ## Auslieferbare Fassung bauen
@@ -50,13 +50,13 @@ Flash-Attention-Kernel), das Programm stürzt beim Laden des Modells ab.
 Das Modell steckt **nicht** im Build: 574 MB plattformunabhängige Daten in
 jedem Installer wären reine Bandbreitenverschwendung. Beim ersten Start lädt
 die Anwendung sie von Hugging Face nach — mit Prüfsumme, fortsetzbar, und mit
-Fortschrittsanzeige im Fenster, weil ein gebündeltes Programm keine sichtbare
+Fortschrittsanzeige im Fenster, weil ein gepacktes Programm keine sichtbare
 Konsole hat.
 
 ### Plattformen
 
 Ein plattformübergreifender Universal-Build ist nicht möglich: whisper.cpp und
-die Python-Bündelung sind beide nativ. Auch ein macOS Universal Binary
+das Python-Packaging sind beide nativ. Auch ein macOS Universal Binary
 scheidet praktisch aus, weil es ein universal2-Python samt universal2-
 Abhängigkeiten voraussetzt. Es bleiben **zwei Fassungen**: macOS/Apple Silicon
 und Windows x64. Vom Mac aus lässt sich die Windows-Fassung nicht erzeugen —
@@ -82,14 +82,14 @@ eigenem Profil, deshalb beendet Schließen auch das Programm.
 Die Desktop-Fassung fragt beim Start die GitHub-API nach dem neuesten
 veröffentlichten Release dieses Repositorys
 (`https://api.github.com/repos/nicohofdtz/live-protocol/releases/latest`).
-Dort liegen auch die Bündel; eine eigene Gegenstelle braucht es nicht.
+Dort liegen auch die Apps; eine eigene Gegenstelle braucht es nicht.
 Entwürfe sieht die API nicht, eine Fassung gilt also erst als verfügbar, wenn
 ihr Release veröffentlicht ist.
 
 Die Abfrage läuft im Backend, nicht im Browser (das erspart CORS), und ist
 folgenlos, wenn nichts erreichbar ist: offline gibt es schlicht keinen
 Hinweis. Der Hinweis lässt sich wegklicken und kommt für dieselbe Version
-nicht wieder. Abschaltbar mit `UPDATE_CHECK=false`. Wer eigene Bündel
+nicht wieder. Abschaltbar mit `UPDATE_CHECK=false`. Wer eigene Apps
 verteilt, lässt `UPDATE_URL` auf eine andere Quelle zeigen: entweder dieselbe
 Form wie die GitHub-API (`tag_name`, `html_url`) oder schlicht
 `{"version": "0.7.0", "download_url": "https://…"}`.

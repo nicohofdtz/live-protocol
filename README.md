@@ -63,9 +63,9 @@ Betrieb mit Whisper und Ollama bleiben deine Inhalte auf deinem Rechner.
 ## Schnellstart: Desktop
 
 1. Unter [Releases](https://github.com/nicohofdtz/live-protocol/releases) das
-   Bündel für das eigene System laden (`macos-arm64` für Macs mit Apple
+   Zip-Archiv für das eigene System laden (`macos-arm64` für Macs mit Apple
    Silicon, `windows-x64`) und entpacken.
-2. Starten. Die Bündel sind nicht signiert, das System fragt deshalb beim
+2. Starten. Die Apps sind nicht signiert, das System fragt deshalb beim
    ersten Mal nach:
    - **macOS:** Einmal öffnen, die Warnung schließen, dann
      *Systemeinstellungen → Datenschutz & Sicherheit* öffnen, im Bereich
@@ -166,7 +166,7 @@ in [docs/technik.md](docs/technik.md); Messungen und Modellvergleiche in
 uv run pytest -q
 ```
 
-## Bündel bauen
+## Apps bauen
 
 ```bash
 ./build/build.sh          # macOS: baut whisper.cpp aus den Quellen, dann PyInstaller
@@ -181,7 +181,7 @@ Hand veröffentlicht wird. Versionen, Plattformen und Einzelheiten:
 
 MIT, siehe `LICENSE`. Fremdbestandteile und ihre Lizenzen stehen in
 [THIRD_PARTY.md](THIRD_PARTY.md): `static/lame.min.js` ist lamejs 1.2.1
-(LGPL-3.0), die Desktop-Bündel enthalten whisper.cpp (MIT). Das
+(LGPL-3.0), die Desktop-Apps enthalten whisper.cpp (MIT). Das
 Whisper-Modell gehört nicht zum Repository; die Desktop-Fassung lädt es beim
 ersten Start von Hugging Face.
 

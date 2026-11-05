@@ -309,7 +309,7 @@ async def get_config(user: str = Depends(current_user)) -> dict:
 
 # Zustand des Modell-Downloads. Der erste Start lädt 574 MB nach; ohne
 # Rückmeldung im Fenster sähe das nach einem hängenden Programm aus, denn ein
-# gebündeltes Programm hat keine sichtbare Konsole.
+# gepacktes Programm hat keine sichtbare Konsole.
 model_state: dict = {"running": False, "downloaded": 0, "error": None}
 
 
@@ -460,7 +460,7 @@ async def get_health(user: str = Depends(current_user)) -> dict:
 
 def _konfig() -> Settings:
     """Die geltende Konfiguration. Am eigenen Rechner bringt der Nutzer seine
-    Schlüssel selbst mit - im Bündel steckt keiner -, deshalb gelten dort die
+    Schlüssel selbst mit - in der App steckt keiner -, deshalb gelten dort die
     lokalen Einstellungen vor der .env."""
     if settings.hosted:
         return settings

@@ -1,7 +1,7 @@
 """Ablageorte, plattformgerecht.
 
 Im ausgelieferten Programm darf nichts neben der Anwendung liegen: unter
-macOS steckt sie in einem signierten (bzw. quarantänebehafteten) Bündel,
+macOS steckt sie in einem signierten (bzw. quarantänebehafteten) App-Bundle,
 unter Windows oft in `Program Files` ohne Schreibrecht.
 """
 
@@ -58,7 +58,7 @@ def bundled_dir() -> Path:
 def whisper_server_binary() -> Path | None:
     """Mitgelieferte whisper-server-Binärdatei, falls vorhanden.
 
-    Im gebündelten Programm liegt sie unter `bin/`, im Quellbetrieb nach einem
+    In der gepackten App liegt sie unter `bin/`, im Quellbetrieb nach einem
     lokalen Build unter `build/bin/`. Findet sich keine, greift der Aufrufer
     auf ein whisper-server aus dem PATH zurück.
     """

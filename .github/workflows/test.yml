@@ -1,6 +1,6 @@
 # Führt die Tests bei jedem Push aus.
 #
-# build.yml packt nur Bündel; ob die Tests grün sind, soll nicht davon
+# build.yml baut nur die Apps; ob die Tests grün sind, soll nicht davon
 # abhängen, dass jemand von Hand nachsieht. Neue Pfade sollen nicht erst
 # beim nächsten Termin auffallen.
 

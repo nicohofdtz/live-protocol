@@ -453,12 +453,12 @@ class Settings(BaseSettings):
     orphan_grace_seconds: float = Field(default=120.0)
 
     # Wohin der Hinweis auf die lokale Fassung und der Link in der Fußzeile
-    # führen. Die Bündel liegen als Anhang an den GitHub-Releases.
+    # führen. Die Apps liegen als Anhang an den GitHub-Releases.
     download_url: str = Field(default=RELEASES_URL)
 
     # --- Update-Prüfung (nur Desktop) -----------------------------------
     # Gefragt wird die GitHub-API nach dem neuesten Release dieses
-    # Repositorys - dort liegen auch die Bündel, eine eigene Gegenstelle
+    # Repositorys - dort liegen auch die Apps, eine eigene Gegenstelle
     # braucht es nicht. Die Abfrage läuft im Backend, nicht im Browser (das
     # erspart CORS), und bleibt folgenlos, wenn nichts erreichbar ist.
     # UPDATE_CHECK=false schaltet sie ab, UPDATE_URL zeigt auf eine andere

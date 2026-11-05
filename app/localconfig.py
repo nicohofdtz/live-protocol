@@ -1,7 +1,7 @@
 """Lokale Einstellungen der ausgelieferten Anwendung.
 
 Im Desktop-Betrieb bringt der Nutzer eigene Zugangsdaten mit. Die gehören
-weder in eine `.env` neben das Programmbündel (dort ist oft kein Schreibrecht)
+weder in eine `.env` neben die App (dort ist oft kein Schreibrecht)
 noch in den Browser-Speicher, sondern in eine Datei im Benutzerprofil, die nur
 er selbst lesen kann.
 """

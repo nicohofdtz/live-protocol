@@ -7,7 +7,7 @@ Mehr muss der Umsetzer nicht können; ein allgemeiner Markdown-Parser wäre
 eine Abhängigkeit für Fälle, die hier nicht vorkommen.
 
 Auf dem Server und nicht im Browser, damit auch die Desktop-Fassung ohne
-Netz exportieren kann: python-docx steckt im Bündel.
+Netz exportieren kann: python-docx steckt in der App.
 """
 
 from __future__ import annotations

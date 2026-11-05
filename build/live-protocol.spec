@@ -32,7 +32,7 @@ a = Analysis(
     datas=[
         (str(ROOT / "static"), "static"),
         (str(ROOT / "output_types"), "output_types"),
-        # Lizenztexte gehören mit ins Bündel - whisper.cpp und lamejs stecken drin.
+        # Lizenztexte gehören mit in die App - whisper.cpp und lamejs stecken drin.
         (str(ROOT / "LICENSE"), "."),
         (str(ROOT / "THIRD_PARTY.md"), "."),
         (str(ROOT / "licenses"), "licenses"),
@@ -71,7 +71,7 @@ if sys.platform == "darwin":
             "NSMicrophoneUsageDescription":
                 "Für die Aufzeichnung und Transkription von Besprechungen.",
             # Dasselbe für den Systemton: Das Fenster ist ein Kindprozess
-            # dieses Bündels, macOS rechnet ihm die Aufnahme zu.
+            # dieser App, macOS rechnet ihm die Aufnahme zu.
             "NSAudioCaptureUsageDescription":
                 "Für die Aufzeichnung des Systemtons von Besprechungen.",
         },

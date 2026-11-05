@@ -1,7 +1,7 @@
 # Baut die auslieferbaren Fassungen.
 #
 # Warum CI und nicht lokal: Vom Mac aus lässt sich keine Windows-Fassung
-# erzeugen - whisper.cpp und die Python-Bündelung sind beide nativ. Ein
+# erzeugen - whisper.cpp und das Python-Packaging sind beide nativ. Ein
 # Windows-Läufer ist der einzige praktikable Weg.
 #
 # Kein Intel-Mac: Der Build dafür ist in der CI fehlgeschlagen und wird nicht
@@ -11,8 +11,8 @@
 # Dienst. Ein echtes Universal Binary wäre die Alternative gewesen, setzt aber
 # ein universal2-Python samt universal2-Abhängigkeiten voraus.
 #
-# Bei einem Tag v* hängen die Bündel danach an einem Release-ENTWURF.
-# Veröffentlicht wird von Hand: Erst wer die Bündel ausprobiert hat, gibt sie
+# Bei einem Tag v* hängen die Apps danach an einem Release-ENTWURF.
+# Veröffentlicht wird von Hand: Erst wer die Apps ausprobiert hat, gibt sie
 # frei - und erst dann meldet die Update-Prüfung die neue Fassung.
 
 name: Build
@@ -23,7 +23,7 @@ on:
     tags: ["v*"]
 
 jobs:
-  # Ein Entwurf je Tag, angelegt bevor die Bündel gebaut werden. Legten ihn
+  # Ein Entwurf je Tag, angelegt bevor die Apps gebaut werden. Legten ihn
   # die beiden Bau-Läufer selbst an, entstünden bei gleichzeitigem Ende zwei.
   draft:
     if: startsWith(github.ref, 'refs/tags/v')
@@ -90,9 +90,9 @@ jobs:
 
       # Gepackt wird auf dem Läufer, nicht beim Herunterladen: Die
       # Artefakt-Ablage kennt keine symbolischen Verweise und löst sie in
-      # echte Kopien auf. Ein macOS-Bündel wird dadurch fast doppelt so groß,
+      # echte Kopien auf. Eine macOS-App wird dadurch fast doppelt so groß,
       # weil PyInstaller Frameworks und Resources über Verweise teilt. `ditto`
-      # erhält sie - und gleich auch die Rechte und die Bündel-Struktur.
+      # erhält sie - und gleich auch die Rechte und die Struktur der App.
       - name: Packen (macOS)
         if: runner.os == 'macOS'
         run: |
