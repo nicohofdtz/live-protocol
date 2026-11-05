@@ -9,7 +9,7 @@
       },
       {
         "title": "Schneller zur Zusammenfassung",
-        "text": "Beim Beenden entfällt der letzte Lauf des Live-Protokolls, wenn eine Zusammenfassung eingerichtet ist. Der Dialog dafür erscheint sofort, das spart Wartezeit und Kosten. Lehnst du die Zusammenfassung ab, fehlen im Live-Protokoll die letzten Sätze, das Transkript bleibt vollständig."
+        "text": "Beim Beenden entfällt der letzte Lauf des Live-Protokolls, wenn eine Zusammenfassung eingerichtet ist. Der Dialog dafür erscheint sofort, das spart Wartezeit und Kosten. Wählst du „Später“, wird der Lauf im Hintergrund nachgeholt."
       }
     ]
   },

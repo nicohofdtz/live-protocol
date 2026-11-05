@@ -95,6 +95,7 @@ let localSettings = {};
 let config = null;
 let settings = {};
 let ws = null, audioContext = null, workletNode = null, mediaStream = null, systemStream = null, systemRegler = null;
+let liveLaufOffen = false, liveNachlauf = null;
 let sessionId = null;
 let recording = false, paused = false, firstSegment = true;
 // Der Browser hält den Audiograph an, sobald die Seite in den Hintergrund
@@ -1276,8 +1277,32 @@ function ohneLetztenLiveLauf() {
   return settings.live_protocol === true && config.summary_models?.length > 0;
 }
 
+/** „Später“ statt Zusammenfassung: Dann bleibt das Live-Protokoll das Ergebnis
+ *  und bekommt die letzten Sätze doch noch. Eine Zusammenfassung, die inzwischen
+ *  gestartet wurde, gewinnt: Das Ergebnis wird dann verworfen. */
+async function holeLiveLaufNach() {
+  if (!liveLaufOffen || zusammenfassungVon) return;
+  liveLaufOffen = false;
+  const lauf = {};
+  liveNachlauf = lauf;
+  ui.cycle.hidden = false;
+  try {
+    const antwort = await fetch(`/api/sessions/${sessionId}/live-pass`, { method: 'POST' });
+    const { protocol } = await antwort.json();
+    if (lauf === liveNachlauf && antwort.ok && protocol) renderProtocol(protocol);
+  } catch {
+    // Das Transkript ist vollständig, es fehlt nur der letzte Lauf.
+  } finally {
+    if (lauf === liveNachlauf) {
+      ui.cycle.hidden = true;
+      liveNachlauf = null;
+    }
+  }
+}
+
 async function schliesseSitzung() {
   const ohneLauf = ohneLetztenLiveLauf();
+  liveLaufOffen = ohneLauf;
   if (ws?.readyState === WebSocket.OPEN) ws.send(ohneLauf ? 'stop-without-live-pass' : 'stop');
   const ziel = `/api/sessions/${sessionId}/stop${ohneLauf ? '?live_pass=false' : ''}`;
   const antwort = await (await fetch(ziel, { method: 'POST' })).json();
@@ -2113,7 +2138,11 @@ ui.speakerDialog.addEventListener('close', () => {
   }
   merkeVor();
   if (wert === 'summary') oeffneZusammenfassung();
-  else zeigeZurueckZurZusammenfassung(true);
+  else {
+    zeigeZurueckZurZusammenfassung(true);
+    // Wer das Transkript prüft, kommt gleich zur Zusammenfassung zurück.
+    if (wert !== 'check' && wert !== 'split') holeLiveLaufNach();
+  }
 });
 
 // -- Sprecher ------------------------------------------------------
@@ -2421,12 +2450,17 @@ ui.summaryDialog.addEventListener('close', () => {
   if (wert === 'run') fuehreZusammenfassungAus();
   // Wer den Dialog verlässt, um erst das Transkript anzusehen, soll ohne
   // Umweg über die Sprecher wieder hineinfinden.
-  else if (wert !== 'speakers') zeigeZurueckZurZusammenfassung(true);
+  else if (wert !== 'speakers') {
+    zeigeZurueckZurZusammenfassung(true);
+    holeLiveLaufNach();
+  }
 });
 
 // -- Zusammenfassung nach dem Termin ---------------------------
 
 function setzeSitzungsinhaltZurueck() {
+  liveLaufOffen = false;
+  liveNachlauf = null;
   lastTranscriptText = '';
   transkriptEintraege = [];
   gesammelteHinweise = [];
@@ -2578,6 +2612,7 @@ async function fuehreZusammenfassungAus() {
   };
   storeSettings();
 
+  liveNachlauf = null;
   ui.cycle.hidden = false;
   ui.summaryOpen.disabled = true;
   zeigeZurueckZurZusammenfassung(false);
@@ -2601,6 +2636,7 @@ async function fuehreZusammenfassungAus() {
     if (!antwort.ok) throw new Error(daten.detail || `HTTP ${antwort.status}`);
     renderProtocol(daten.markdown);
     zusammenfassungVon = daten.model;
+    liveLaufOffen = false;
     ui.protocolTitle.textContent = 'Zusammenfassung';
     ui.export.disabled = false;
     aenderungen = [];

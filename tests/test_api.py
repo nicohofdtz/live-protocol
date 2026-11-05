@@ -102,6 +102,10 @@ def test_stopp_reicht_den_verzicht_auf_den_live_lauf_durch(hosted):
     hosted.post(f"/api/sessions/{sid}/stop")
     session.stop.assert_awaited_with(live_pass=True)
 
+    session.catch_up_live_pass = AsyncMock(return_value="## Nachgeholt")
+    antwort = hosted.post(f"/api/sessions/{sid}/live-pass")
+    assert antwort.json() == {"protocol": "## Nachgeholt"}
+
     session.stop.reset_mock()
     with hosted.websocket_connect(f"/api/sessions/{sid}/stream") as verbindung:
         verbindung.send_text("stop-without-live-pass")

@@ -516,3 +516,47 @@ async def test_spaeter_stopp_mit_live_lauf_aendert_nichts(settings):
     await session.stop(live_pass=False)
     await session.stop()
     assert chat.calls == 0
+
+
+async def test_nachholen_arbeitet_den_abgebrochenen_lauf_ein(settings):
+    """Sonst fehlte im Protokoll genau der Text, an dem der Stopp abbrach."""
+    import asyncio
+
+    chat = StubChat()
+    original = chat.complete
+    gestartet = asyncio.Event()
+    eingaben = []
+
+    async def haengt_einmal(system, user, **kwargs):
+        eingaben.append(user)
+        if len(eingaben) == 1:
+            gestartet.set()
+            await asyncio.Event().wait()
+        return await original(system, user, **kwargs)
+
+    chat.complete = haengt_einmal
+    session = _meeting(settings, strategy="rewrite", chat=chat)
+    session.start()
+    await session.add_audio(tone(18.0) + silence(2.0) + tone(18.0))
+    await asyncio.wait_for(gestartet.wait(), timeout=5)
+    await session.stop(live_pass=False)
+    assert not session.strategy.protocol
+
+    protokoll = await session.catch_up_live_pass()
+    assert protokoll.startswith("## Thema")
+    assert "Transkribiertes Segment 1" in eingaben[1]
+    assert (session.dir / "protocol.md").read_text(encoding="utf-8") == protokoll
+
+    await session.catch_up_live_pass()  # höchstens einmal
+    assert len(eingaben) == 2
+
+
+async def test_nachholen_nur_nach_ausgelassenem_lauf(settings):
+    chat = StubChat()
+    session = _meeting(settings, strategy="rewrite", chat=chat)
+    session.start()
+    await session.add_audio(tone(18.0) + silence(2.0))
+    await session.stop()
+    aufrufe = chat.calls
+    await session.catch_up_live_pass()
+    assert chat.calls == aufrufe

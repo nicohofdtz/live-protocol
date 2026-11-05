@@ -295,11 +295,8 @@ class LiveSession:
             except Exception:  # noqa: BLE001 - gemeldet hat es _worker_done
                 pass
             setattr(self, name, None)
-        if self.live_protocol and not self._skip_live_pass:
-            if self._chars_since_update > 0:
-                await self._update_protocol()
-            if self.settings.final_pass:
-                await self._polish()
+        if not self._skip_live_pass:
+            await self._final_live_passes()
         if self._audio_file is not None:
             self._audio_file.close()
         self._persist()
@@ -310,6 +307,26 @@ class LiveSession:
             except Exception:  # noqa: BLE001 - der Abschluss selbst steht
                 logger.exception("Nachlauf der Sitzung %s fehlgeschlagen", self.id)
         self._emit({"type": "stopped", "session": self.id})
+
+    async def _final_live_passes(self) -> None:
+        if self.live_protocol and self._chars_since_update > 0:
+            await self._update_protocol()
+        if self.live_protocol and self.settings.final_pass:
+            await self._polish()
+
+    async def catch_up_live_pass(self) -> str:
+        """Holt nach, was stop(live_pass=False) ausgelassen hat.
+
+        Für den Fall, dass die Zusammenfassung dann doch nicht kommt und das
+        Live-Protokoll das Ergebnis bleibt. Läuft höchstens einmal."""
+        self.last_activity = time.monotonic()
+        if self._stop_task is not None:
+            await asyncio.shield(self._stop_task)
+        if self._skip_live_pass:
+            self._skip_live_pass = False
+            await self._final_live_passes()
+            self._persist()
+        return self.strategy.protocol
 
     # -- Worker ----------------------------------------------------------
 
@@ -531,6 +548,7 @@ class LiveSession:
     async def _update_protocol(self) -> None:
         # Lückenvermerke gehen mit: Das Modell soll sehen, dass hier etwas
         # fehlt, statt über das Loch hinweg zu formulieren.
+        schon_verarbeitet = self._processed_entries
         neu = self.transcript[self._processed_entries:]
         self._processed_entries = len(self.transcript)
         new_text = " ".join(e["text"] for e in neu)
@@ -547,6 +565,10 @@ class LiveSession:
         except asyncio.CancelledError:
             if not self._live_run.cancelled() or not self._skip_live_pass:
                 raise
+            # Der Text gehört zum Nachholen, falls es dazu kommt.
+            self._processed_entries = schon_verarbeitet
+            self._chars_since_update += len(new_text)
+            self.cycle -= 1
             return
         except AllEndpointsFailed as exc:
             logger.error("Protokoll-Lauf fehlgeschlagen: %s", exc)

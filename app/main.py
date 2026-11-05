@@ -922,6 +922,12 @@ async def stop_session(session_id: str, live_pass: bool = True,
             "transcript": session.transcript}
 
 
+@app.post("/api/sessions/{session_id}/live-pass")
+async def catch_up_live_pass(session_id: str, user: str = Depends(current_user)) -> dict:
+    session = _require(session_id, user)
+    return {"protocol": await session.catch_up_live_pass()}
+
+
 @app.get("/api/sessions/{session_id}")
 async def get_session(session_id: str, user: str = Depends(current_user)) -> dict:
     session = _require(session_id, user)
