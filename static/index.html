@@ -561,6 +561,10 @@
       Nach dem Beenden Sprecher unterscheiden</label>
     <p id="speakers-note" class="note"></p>
 
+    <label class="checks-row"><input type="checkbox" id="set-system-audio">
+      Systemton mitschneiden</label>
+    <p id="system-audio-note" class="note"></p>
+
     <fieldset class="field">
       <legend class="field-head">Glossare</legend>
       <div id="glossary-list" class="glossaries"></div>
@@ -656,7 +660,8 @@
 <dialog id="consent-dialog">
   <form method="dialog">
     <h3>Alle einverstanden?</h3>
-    <p>Bitte nur aufnehmen, wenn alle Anwesenden zugestimmt haben. Gespräche ohne
+    <p>Bitte nur aufnehmen, wenn alle zugestimmt haben, auch wer per Video oder
+      Telefon zugeschaltet ist. Gespräche ohne
       Zustimmung aufzunehmen ist strafbar (§ 201 StGB); verantwortlich ist, wer die
       Aufnahme startet.</p>
     <label class="checks-row"><input type="checkbox" id="consent-hide">

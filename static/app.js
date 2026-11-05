@@ -1,4 +1,5 @@
-// Aufnahme im Browser: Mikrofon -> AudioWorklet -> 16-bit-PCM -> WebSocket.
+// Aufnahme im Browser: Mikrofon (und auf Wunsch Systemton) -> AudioWorklet
+// -> 16-bit-PCM -> WebSocket.
 // Bewusst kein MediaRecorder: dessen webm/mp4-Fragmente sind einzeln nicht
 // dekodierbar, der Server müsste die wachsende Datei jedes Mal komplett neu
 // dekodieren. Rohes PCM ist auf localhost billig und serverseitig beliebig
@@ -68,6 +69,7 @@ const ui = {
   speakerDialog: el('speaker-dialog'), speakerTabs: el('speaker-tabs'),
   speakerName: el('speaker-name'), speakerMixed: el('speaker-mixed'),
   speakerSamples: el('speaker-samples'), setSpeakersAfter: el('set-speakers-after'),
+  setSystemAudio: el('set-system-audio'), systemAudioNote: el('system-audio-note'),
   sumPersons: el('sum-persons'), sumSpeakersNote: el('sum-speakers-note'),
   sumSpeakersEdit: el('sum-speakers-edit'),
   protocolEdit: el('protocol-edit'), protocolEditing: el('protocol-editing'),
@@ -92,7 +94,7 @@ let localSettings = {};
 
 let config = null;
 let settings = {};
-let ws = null, audioContext = null, workletNode = null, mediaStream = null;
+let ws = null, audioContext = null, workletNode = null, mediaStream = null, systemStream = null, systemRegler = null;
 let sessionId = null;
 let recording = false, paused = false, firstSegment = true;
 // Der Browser hält den Audiograph an, sobald die Seite in den Hintergrund
@@ -185,6 +187,15 @@ function fillSettingsDialog() {
   ui.setLive.checked = settings.live_protocol === true;
   ui.liveOptions.hidden = !ui.setLive.checked;
   ui.setSpeakersAfter.checked = settings.speakers_after_stop === true;
+  ui.setSystemAudio.checked = settings.system_audio === true && systemtonMoeglich();
+  ui.setSystemAudio.disabled = !systemtonMoeglich();
+  ui.systemAudioNote.textContent = systemtonMoeglich()
+    ? 'Nimmt zusätzlich auf, was der Rechner abspielt, etwa die Gegenseite in Teams '
+      + 'oder Zoom. Beim Start fragt der Browser nach einer Bildschirmfreigabe: Dort '
+      + 'den Bildschirm wählen und „Systemton teilen“ einschalten. Das Bild wird '
+      + 'nicht aufgezeichnet. Ohne Kopfhörer landet die Gegenseite doppelt in der '
+      + 'Aufnahme.'
+    : 'Geht nur am Rechner in Chrome oder Edge, unter macOS ab Version 14.2.';
   const dienst = sprecherDienst();
   ui.setSpeakersAfter.disabled = !dienst;
   ui.speakersNote.textContent = dienst
@@ -561,7 +572,8 @@ function renderMeta() {
   const live = settings.live_protocol
     ? `Live-Protokoll: ${llm ? llm.label : 'automatisch'}`
     : 'Zusammenfassung nach dem Beenden';
-  ui.meta.textContent = `${engine ? engine.name : settings.engine} · ${live}`;
+  const ton = systemtonAktiv() ? ' · mit Systemton' : '';
+  ui.meta.textContent = `${engine ? engine.name : settings.engine} · ${live}${ton}`;
 }
 
 /** Am Telefon hält kein Browser das Mikrofon im Hintergrund an. Der
@@ -807,14 +819,82 @@ function zustimmungBestaetigt() {
   });
 }
 
+/** Systemton gibt es nur über die Bildschirmfreigabe von Chromium-Browsern am
+ *  Rechner. Firefox und Safari kennen getDisplayMedia, liefern aber keinen
+ *  Systemton; suppressLocalAudioPlayback gibt es nur in Chromium. */
+function systemtonMoeglich() {
+  const geraete = navigator.mediaDevices;
+  return Boolean(geraete?.getDisplayMedia)
+    && 'suppressLocalAudioPlayback' in geraete.getSupportedConstraints()
+    && !window.matchMedia('(pointer: coarse)').matches;
+}
+
+function systemtonAktiv() {
+  return settings.system_audio === true && systemtonMoeglich();
+}
+
+/** Fragt die Bildschirmfreigabe ab. Null heißt: nicht starten - wer den
+ *  Systemton eingeschaltet hat, erwartet die Gegenseite in der Aufnahme, und
+ *  eine halbe Besprechung fiele erst hinterher auf. */
+async function holeSystemton() {
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getDisplayMedia({
+      // Das Bild verlangt der Standard; es geht nirgends hin.
+      video: { frameRate: 1 },
+      audio: {
+        echoCancellation: false, noiseSuppression: false, autoGainControl: false,
+        suppressLocalAudioPlayback: false,
+      },
+      systemAudio: 'include',
+      windowAudio: 'system',
+      selfBrowserSurface: 'exclude',
+      surfaceSwitching: 'exclude',
+    });
+  } catch (error) {
+    // Abbrechen im Dialog: "Permission denied"; Sperre durchs System:
+    // "Permission denied by system" oder NotReadableError.
+    const vomSystem = error.name === 'NotReadableError' || /system/i.test(error.message);
+    setStatus(vomSystem
+      ? 'Keine Bildschirmfreigabe: Das System verweigert sie. Unter macOS in den '
+        + 'Systemeinstellungen bei Datenschutz & Sicherheit die Bildschirmaufnahme '
+        + 'erlauben und das Programm neu starten.'
+      : 'Aufnahme nicht gestartet: Bildschirmfreigabe abgebrochen.', true);
+    return null;
+  }
+  if (!stream.getAudioTracks().length) {
+    stream.getTracks().forEach((track) => track.stop());
+    setStatus('Aufnahme nicht gestartet, die Freigabe enthielt keinen Ton: Bitte den '
+              + 'Bildschirm wählen und „Systemton teilen“ einschalten. Unter macOS '
+              + 'braucht das Version 14.2 und Chrome oder Edge ab Version 141.', true);
+    return null;
+  }
+  return stream;
+}
+
+function stoppeEingaenge() {
+  mediaStream?.getTracks().forEach((track) => track.stop());
+  systemStream?.getTracks().forEach((track) => track.stop());
+  systemStream = null;
+}
+
 async function start() {
   if (!(await zustimmungBestaetigt())) return;
+  // Vor dem Mikrofon: Die Freigabe verlangt einen frischen Klick, und die
+  // Mikrofon-Abfrage kann ihn aufbrauchen.
+  systemStream = null;
+  if (systemtonAktiv()) {
+    systemStream = await holeSystemton();
+    if (!systemStream) return;
+  }
   try {
     mediaStream = await navigator.mediaDevices.getUserMedia({
       audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true },
     });
   } catch (error) {
     setStatus(`Kein Mikrofonzugriff: ${error.message}`, true);
+    mediaStream = null;
+    stoppeEingaenge();
     return;
   }
 
@@ -822,7 +902,7 @@ async function start() {
     await starteSitzung(settings.engine);
   } catch (error) {
     setStatus(error.message, true);
-    mediaStream.getTracks().forEach((t) => t.stop());
+    stoppeEingaenge();
     return;
   }
 
@@ -844,7 +924,7 @@ async function start() {
     await oeffneAudioverbindung();
   } catch (error) {
     setStatus(`Audioverbindung fehlgeschlagen: ${error.message}`, true);
-    mediaStream.getTracks().forEach((track) => track.stop());
+    stoppeEingaenge();
     await audioContext.close();
     audioContext = null;
     ws.close();
@@ -866,10 +946,34 @@ async function start() {
     };
   }
 
-  const source = audioContext.createMediaStreamSource(mediaStream);
+  // Die Freigabe beenden lässt sich jederzeit über die Leiste des Browsers.
+  for (const track of systemStream?.getAudioTracks() ?? []) {
+    track.onended = () => {
+      if (!recording) return;
+      setzeWarnung('Systemton nicht mehr verfügbar',
+        'Die Bildschirmfreigabe wurde beendet. Das Mikrofon läuft weiter, die '
+        + 'Gegenseite fehlt ab hier in der Aufnahme.', { fortsetzbar: false });
+    };
+  }
+
+  // Der Worklet liest nur einen Kanal, der Systemton ist Stereo: Der Mischer
+  // rechnet alles auf Mono herunter. Mit zwei Quellen etwas leiser, damit die
+  // Summe nicht übersteuert.
+  const mischer = audioContext.createGain();
+  mischer.channelCount = 1;
+  mischer.channelCountMode = 'explicit';
+  mischer.channelInterpretation = 'speakers';
+  mischer.gain.value = systemStream ? 0.7 : 1;
+  audioContext.createMediaStreamSource(mediaStream).connect(mischer);
+  systemRegler = null;
+  if (systemStream) {
+    systemRegler = audioContext.createGain();
+    audioContext.createMediaStreamSource(new MediaStream(systemStream.getAudioTracks()))
+      .connect(systemRegler).connect(mischer);
+  }
   workletNode = new AudioWorkletNode(audioContext, 'pcm-worklet');
   workletNode.port.onmessage = (event) => onAudioFrame(event.data);
-  source.connect(workletNode);
+  mischer.connect(workletNode);
   // Ohne Ziel läuft der Graph in manchen Browsern nicht an; stummer Ausgang.
   const silent = audioContext.createGain();
   silent.gain.value = 0;
@@ -984,7 +1088,8 @@ ui.ctxSave.addEventListener('click', () => { uebernimmRahmen(); });
 // Stillstand nicht (Tab- und App-Wechsel gehören der Plattform), also wird
 // er benannt.
 
-function setzeWarnung(titel, text) {
+function setzeWarnung(titel, text, { fortsetzbar = true } = {}) {
+  ui.audioWarningResume.hidden = !fortsetzbar;
   ui.audioWarningTitle.textContent = titel;
   ui.audioWarningText.textContent = text;
   ui.audioWarning.hidden = false;
@@ -1179,7 +1284,7 @@ async function stop() {
   setStatus('Aufnahme wird abgeschlossen, letzter Protokolllauf …');
 
   workletNode?.disconnect();
-  mediaStream?.getTracks().forEach((track) => track.stop());
+  stoppeEingaenge();
   await audioContext?.close();
   ui.level.hidden = true;
 
@@ -1635,6 +1740,8 @@ async function toggleDictation() {
     }
     dictationChunks = [];
     dictating = true;
+    // Das Diktat ist die eigene Stimme, nicht die Gegenseite.
+    if (systemRegler) systemRegler.gain.value = 0;
     diktatSeit = Date.now();
     ui.feedbackDictate.dataset.recording = 'true';
     ui.feedbackDictate.lastChild.textContent = ' Diktat beenden';
@@ -1643,6 +1750,7 @@ async function toggleDictation() {
   }
 
   dictating = false;
+  if (systemRegler) systemRegler.gain.value = 1;
   // Während des Diktats ging die Besprechung weiter, aber nicht in die
   // Aufnahme - dieselbe Art Loch wie ein Aussetzer, also auch so vermerkt.
   const diktatSekunden = Math.round((Date.now() - diktatSeit) / 1000);
@@ -1871,6 +1979,7 @@ ui.settings.addEventListener('close', () => {
     glossaries: glossarEntwurf.map((g) => ({ ...g, terms: [...new Set(g.terms)] })),
     active_glossaries: [...aktivEntwurf].filter((id) => glossarEntwurf.some((g) => g.id === id)),
     speakers_after_stop: ui.setSpeakersAfter.checked,
+    system_audio: ui.setSystemAudio.checked,
   };
   storeSettings();
   zeigeLiveSchalter();

@@ -19,7 +19,7 @@ from typing import Any
 FELDER = ("engine", "output_type", "strategy", "llm_endpoint", "vocabulary",
           "trigger_seconds", "trigger_chars", "live_protocol",
           "summary_model", "summary_detail", "summary_blocks",
-          "speakers_after_stop", "upload_diarize",
+          "speakers_after_stop", "upload_diarize", "system_audio",
           "glossaries", "active_glossaries", "glossary_target", "news_seen")
 
 # Glossare sind größer als eine Einstellung: bis zu 20 Listen mit je einigen

@@ -70,5 +70,9 @@ if sys.platform == "darwin":
             # Ohne diesen Text verweigert macOS den Mikrofonzugriff wortlos.
             "NSMicrophoneUsageDescription":
                 "Für die Aufzeichnung und Transkription von Besprechungen.",
+            # Dasselbe für den Systemton: Das Fenster ist ein Kindprozess
+            # dieses Bündels, macOS rechnet ihm die Aufnahme zu.
+            "NSAudioCaptureUsageDescription":
+                "Für die Aufzeichnung des Systemtons von Besprechungen.",
         },
     )
