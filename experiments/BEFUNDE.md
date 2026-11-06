@@ -224,6 +224,45 @@ und `data_collection: "deny"`.
 Gemma ist am schnellsten und bleibt flach, das Ergebnis ist brauchbar
 gegliedert. Es ist jetzt das Live-Modell, Nemo bleibt Ausweichweg.
 
+## Mistral-Modelle für Live und Abschluss (2026-11-06)
+
+Material: der Podcast von 20 Minuten, 14 Läufe im 90-Sekunden-Takt, je Modell
+und Strategie ein Durchgang über den EU-Endpunkt. Themen: wie viele von neun
+Stichwörtern zu den Kernthemen das Protokoll am Ende noch nennt.
+
+| Modell, Strategie | Dauer je Lauf | Themen | Eingabe / Ausgabe (Tokens) |
+|---|---|---|---|
+| Small 4, `delta` | 1,5–3,1 s | 8/9 | 19.894 / 2.940 |
+| Ministral 14B, `delta` | 2,6–14,9 s | 9/9 | 21.346 / 4.729 |
+| Small 4, `rewrite` | 1,2–5,6 s | 5/9 | 17.885 / 8.292 |
+| Ministral 14B, `rewrite` | 6,9–54 s | 2/9 | 34.760 / 26.361 |
+| Ministral 8B, `rewrite` | 7,1–46 s | 2/9 | 31.120 / 22.832 |
+
+- **`rewrite` verliert frühe Themen**, und zwar modellunabhängig. Bei den
+  Ministral-Modellen steht am Ende fast nur noch das letzte Thema im Protokoll.
+  Deshalb ist `delta` jetzt die Vorgabe. Die Empfehlung `rewrite` bis 30 Minuten
+  aus dem ersten Vergleich gilt damit nicht mehr.
+- **`open-mistral-nemo` ist abgeschaltet.** Mistral leitet das Modell seit dem
+  31.07.2026 ohne Hinweis auf `ministral-8b-2512` um.
+- **Ministral 8B liefert bei `delta` eine nackte Liste** statt `{"ops": [...]}`.
+- **Small 4 kennt `reasoning_effort: low` nicht** (HTTP 400). Die Vorgabe ist
+  schnell genug, der Parameter entfällt.
+
+Abschluss (ein Lauf über das ganze Transkript, 8.072 Eingabe-Tokens):
+
+| Modell | Einstellung | Dauer | Ausgabe-Tokens | Wörter |
+|---|---|---|---|---|
+| GLM 5.3 | `high` | 9 s | 1.997 | 1.052 |
+| GLM 5.3 | `low` | 11 s | 1.374 | 692 |
+| Mistral Large 4 | Vorgabe | 63 s | 5.403 | 601 |
+| Mistral Large 4 | `high` | 83 s | 7.939 | 582 |
+| Mistral Small 4 | Vorgabe | 10 s | 1.011 | 532 |
+| GLM 5.3 Flash | `low` | 45 s | 2.100 | 1.108 |
+
+GLM 5.3 bleibt: Large 4 denkt länger und liefert weniger Inhalt. Small 4 ist
+zehnmal billiger, nimmt Witze aber eher wörtlich. Ein Podcast ist kein Meeting,
+und ein Durchgang streut; die Tendenz zählt, nicht der Einzelwert.
+
 ## Sprechererkennung mit Voxtral `diarize` (2026-09-23)
 
 Skript: `diarize_probe.py`. Material: ein Podcast von 20 Minuten mit mehreren
