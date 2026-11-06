@@ -3,7 +3,7 @@ id: meeting
 name: Besprechungsprotokoll
 short_name: Protokoll
 description: Laufendes Protokoll einer Besprechung mit mehreren Teilnehmern
-default_strategy: rewrite
+default_strategy: delta
 # Bausteine für die Zusammenfassung nach dem Termin, zum Ankreuzen.
 summary_blocks:
   - id: kurzfassung

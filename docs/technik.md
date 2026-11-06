@@ -57,8 +57,8 @@ laufenden ab (`live_pass=false`). Die Zusammenfassung entsteht aus dem Transkrip
 und ersetzt das Protokoll ohnehin. Wer stattdessen „Später“ wählt, dem holt
 `/api/sessions/{id}/live-pass` die ausgelassenen Läufe im Hintergrund nach.
 
-Empfehlung: `rewrite` für Besprechungen bis etwa 30 Minuten, `delta` +
-Abschlusslauf für längere. Vollständige Messwerte und Begründung:
+Vorgabe ist `delta` + Abschlusslauf: `rewrite` verliert in längeren Sitzungen
+frühe Themen. Vollständige Messwerte und Begründung:
 **`experiments/BEFUNDE.md`**.
 
 ## Bedienung
@@ -101,7 +101,7 @@ Beide Stufen sind einzeln umschaltbar:
 | Stufe | lokal | Cloud |
 |---|---|---|
 | Transkription | whisper.cpp large-v3-turbo (Vorauswahl am eigenen Rechner) | Voxtral Realtime (`voxtral-mini-transcribe-realtime-2602`), Voxtral als Datei (`voxtral-mini-latest`), das Transkriptionsmodell des OpenAI-kompatiblen Anbieters (z. B. Whisper turbo über OpenRouter) |
-| Live-Protokoll | OpenAI-kompatibler Anbieter im eigenen Netz, z. B. Ollama (`qwen3.5:9b`) | OpenAI-kompatibler Anbieter (z. B. Gemma 4 über OpenRouter), Mistral Nemo |
+| Live-Protokoll | OpenAI-kompatibler Anbieter im eigenen Netz, z. B. Ollama (`qwen3.5:9b`) | OpenAI-kompatibler Anbieter (z. B. Gemma 4 über OpenRouter), Mistral Small 4 |
 | Zusammenfassung | wie Live-Protokoll | GLM 5.3 bei Mistral in der EU mit zwei Denkstufen, das Modell des OpenAI-kompatiblen Anbieters |
 
 Die Einträge entstehen aus zwei Anbietern: **Mistral** (ein Schlüssel, alles
