@@ -228,7 +228,8 @@ class DeltaStrategy(Strategy):
                     prompt_tokens=prompt_tokens, completion_tokens=completion_tokens,
                 )
 
-        ops = data.get("ops")
+        # Manche Modelle liefern die Operationen als nackte Liste.
+        ops = data.get("ops") if isinstance(data, dict) else data
         applied = self.state.apply(ops, cycle) if isinstance(ops, list) else 0
         if not isinstance(ops, list):
             self.state.invalid_ops += 1

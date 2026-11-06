@@ -560,3 +560,20 @@ async def test_nachholen_nur_nach_ausgelassenem_lauf(settings):
     aufrufe = chat.calls
     await session.catch_up_live_pass()
     assert chat.calls == aufrufe
+
+
+async def test_delta_nimmt_operationen_als_nackte_liste(settings):
+    """Ministral 8B liefert die Operationen ohne das Objekt drumherum."""
+    class ListenChat(StubChat):
+        async def complete(self, **kwargs):
+            self.calls += 1
+            return Completion(
+                text='[{"op": "add_topic", "title": "Thema", "summary": "Inhalt"}]',
+                endpoint="stub", prompt_tokens=1, completion_tokens=1)
+
+    session = _meeting(settings, strategy="delta", chat=ListenChat())
+    ergebnis = await session.strategy.update("Segment", 0)
+
+    assert ergebnis.ops == 1
+    assert session.strategy.state.invalid_ops == 0
+    assert "Thema" in session.strategy.protocol

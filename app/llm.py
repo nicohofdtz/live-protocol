@@ -87,7 +87,7 @@ def strip_think(text: str) -> str:
     return _THINK_RE.sub("", text).strip()
 
 
-def extract_json(text: str) -> dict:
+def extract_json(text: str) -> dict | list:
     """Erstes JSON-Objekt aus einer Antwort holen, notfalls per Klammersuche."""
     text = strip_think(text)
     try:
