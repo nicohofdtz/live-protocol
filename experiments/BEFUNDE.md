@@ -240,8 +240,9 @@ Stichwörtern zu den Kernthemen das Protokoll am Ende noch nennt.
 
 - **`rewrite` verliert frühe Themen**, und zwar modellunabhängig. Bei den
   Ministral-Modellen steht am Ende fast nur noch das letzte Thema im Protokoll.
-  Deshalb ist `delta` jetzt die Vorgabe. Die Empfehlung `rewrite` bis 30 Minuten
-  aus dem ersten Vergleich gilt damit nicht mehr.
+  Deshalb ist `delta` jetzt die Vorgabe für Besprechungen. Die Empfehlung
+  `rewrite` bis 30 Minuten aus dem ersten Vergleich gilt damit nicht mehr.
+  Konzepte bleiben bei `rewrite`, wegen ihrer festen Zielgliederung.
 - **`open-mistral-nemo` ist abgeschaltet.** Mistral leitet das Modell seit dem
   31.07.2026 ohne Hinweis auf `ministral-8b-2512` um.
 - **Ministral 8B liefert bei `delta` eine nackte Liste** statt `{"ops": [...]}`.

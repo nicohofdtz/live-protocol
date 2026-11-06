@@ -3,7 +3,7 @@ id: brainstorming
 name: Konzept aus Brainstorming
 short_name: Konzept
 description: Frei eingesprochene Idee in ein strukturiertes Konzept überführen
-default_strategy: delta
+default_strategy: rewrite
 summary_blocks:
   - id: kurzfassung
     label: Kurzfassung oben

@@ -57,8 +57,9 @@ laufenden ab (`live_pass=false`). Die Zusammenfassung entsteht aus dem Transkrip
 und ersetzt das Protokoll ohnehin. Wer stattdessen „Später“ wählt, dem holt
 `/api/sessions/{id}/live-pass` die ausgelassenen Läufe im Hintergrund nach.
 
-Vorgabe ist `delta` + Abschlusslauf: `rewrite` verliert in längeren Sitzungen
-frühe Themen. Vollständige Messwerte und Begründung:
+Besprechungen laufen mit `delta` + Abschlusslauf, weil `rewrite` in längeren
+Sitzungen frühe Themen verliert. Konzepte bleiben bei `rewrite`, denn nur das
+trifft ihre feste Zielgliederung. Vollständige Messwerte und Begründung:
 **`experiments/BEFUNDE.md`**.
 
 ## Bedienung
