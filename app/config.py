@@ -59,7 +59,7 @@ PRESETS: dict[str, dict[str, Any]] = {
     "mistral": {
         "name": "Mistral",
         "base_url": "https://api.eu.mistral.ai",
-        "live_model": "open-mistral-nemo",
+        "live_model": "mistral-small-2603",
         "summary_model": "zai-glm-5-3",
         "transcription_model": "voxtral-mini-latest",
         "privacy": MISTRAL_PRIVACY,
@@ -593,7 +593,7 @@ class Settings(BaseSettings):
 
     def _vorgabe_llm(self) -> list[dict]:
         """Live-Protokoll aus den Anbietern: erst der OpenAI-kompatible
-        (schneller bzw. im eigenen Netz), dann Mistral Nemo als Ausweichweg."""
+        (schneller bzw. im eigenen Netz), dann Mistral Small 4 als Ausweichweg."""
         endpunkte: list[dict] = []
         anbieter = self.provider
         if anbieter.configured and anbieter.live_model:
@@ -612,10 +612,10 @@ class Settings(BaseSettings):
         # trägt die Desktop-Fassung erst später in den Einstellungen nach.
         if self.mistral_api_key or not self.hosted:
             endpunkte.append({
-                "name": "mistral", "label": "Mistral Nemo · EU", "type": "mistral",
-                "url": "https://api.eu.mistral.ai", "model": "open-mistral-nemo",
-                "local": False, "price_in": 0.165, "price_out": 0.165,
-                "cost": "rund 1 ct je Stunde"})
+                "name": "mistral", "label": "Mistral Small 4 · EU", "type": "mistral",
+                "url": "https://api.eu.mistral.ai", "model": "mistral-small-2603",
+                "local": False, "price_in": 0.165, "price_out": 0.66,
+                "cost": "rund 2 ct je Stunde"})
         return endpunkte
 
     def _vorgabe_summary(self) -> list[dict]:
