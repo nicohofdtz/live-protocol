@@ -610,8 +610,9 @@ function buildOutputTypeControl() {
     item.append(input, label);
     container.append(item);
   }
-  const first = container.querySelector('input');
-  if (first) first.checked = true;
+  // Vorgabe ist die Besprechung, nicht der alphabetisch erste Modus.
+  const vorgabe = el('output-type-meeting') ?? container.querySelector('input');
+  if (vorgabe) vorgabe.checked = true;
   positionThumb();
 }
 
