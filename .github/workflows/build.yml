@@ -45,8 +45,10 @@ jobs:
     needs: draft
     # Ohne Tag (workflow_dispatch) gibt es keinen Entwurf; gebaut wird trotzdem.
     if: ${{ !cancelled() && (needs.draft.result == 'success' || needs.draft.result == 'skipped') }}
+    # Nur lesen: Hier läuft fremder Code (Abhängigkeiten, whisper.cpp,
+    # PyInstaller). Ins Repo schreibt allein der Job "release".
     permissions:
-      contents: write
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -57,14 +59,14 @@ jobs:
             ziel: windows-x64
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
-      - uses: astral-sh/setup-uv@v10.0.1
+      - uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d  # v10.0.1
         with:
           enable-cache: true
 
       - name: Abhängigkeiten
-        run: uv sync
+        run: uv sync --locked
 
       - name: Bauen (macOS)
         if: runner.os == 'macOS'
@@ -85,7 +87,7 @@ jobs:
           New-Item -ItemType Directory -Force build/bin | Out-Null
           Get-ChildItem -Recurse build/whisper.cpp/out -Filter whisper-server.exe |
             Select-Object -First 1 | Copy-Item -Destination build/bin/
-          uv run --with pyinstaller pyinstaller --noconfirm --clean `
+          uv run --with pyinstaller==6.22.3 pyinstaller --noconfirm --clean `
             --distpath build/dist --workpath build/work build/live-protocol.spec
 
       # Gepackt wird auf dem Läufer, nicht beim Herunterladen: Die
@@ -109,17 +111,28 @@ jobs:
           Compress-Archive -Path build/dist/live-protocol `
             -DestinationPath "build/out/live-protocol-${{ matrix.ziel }}.zip"
 
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: live-protocol-${{ matrix.ziel }}
           path: build/out/
 
+  # Hängt die Apps an den Entwurf. Als eigener Job, damit nur dieser kleine
+  # Schritt Schreibrechte hat. Er läuft erst, wenn beide Apps gebaut sind.
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333  # v8.0.2
+        with:
+          pattern: live-protocol-*
+          path: out
+          merge-multiple: true
+
       - name: An den Release-Entwurf hängen
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-        run: |
-          gh release upload "${{ github.ref_name }}" \
-            "build/out/live-protocol-${{ matrix.ziel }}.zip" --clobber
+        run: gh release upload "${{ github.ref_name }}" out/*.zip --clobber

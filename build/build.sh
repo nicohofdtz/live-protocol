@@ -30,7 +30,7 @@ if command -v otool >/dev/null; then
 fi
 
 echo "==> Anwendung packen"
-uv run --with pyinstaller pyinstaller --noconfirm --clean \
+uv run --with pyinstaller==6.22.3 pyinstaller --noconfirm --clean \
     --distpath build/dist --workpath build/work \
     build/live-protocol.spec
 
