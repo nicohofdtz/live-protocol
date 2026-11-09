@@ -45,6 +45,48 @@ a = Analysis(
 )
 pyz = PYZ(a.pure)
 
+
+def paket_lizenzen() -> Path:
+    """Lizenztexte aller Python-Pakete, die tatsächlich in der App landen.
+
+    PyInstaller packt die *.dist-info nur für wenige Pakete mit. Diese Datei
+    sammelt deshalb Lizenzangabe und Lizenzdateien jedes Pakets, aus dem ein
+    Modul in der App steckt, plus PyInstaller selbst (Bootloader)."""
+    import re
+    from importlib import metadata
+
+    namen = {eintrag[0].replace("\\", "/").split("/")[0].split(".")[0]
+             for eintrag in (*a.pure, *a.binaries)}
+    zuordnung = metadata.packages_distributions()
+    pakete = {d for n in namen for d in zuordnung.get(n, [])} | {"pyinstaller"}
+    muster = re.compile(r"(LICEN[CS]E|COPYING|NOTICE|AUTHORS)", re.IGNORECASE)
+    teile = ["Lizenzen der Python-Pakete in dieser App (automatisch beim Bauen erzeugt)", ""]
+    for name in sorted(pakete, key=str.lower):
+        try:
+            dist = metadata.distribution(name)
+        except metadata.PackageNotFoundError:
+            continue
+        meta = dist.metadata
+        lizenz = (meta.get("License-Expression") or "").strip()
+        kurz = (meta.get("License") or "").strip()
+        if not lizenz and kurz and "\n" not in kurz and len(kurz) < 80:
+            lizenz = kurz
+        if not lizenz:
+            lizenz = "; ".join(c.split(" :: ")[-1] for c in meta.get_all("Classifier") or []
+                               if c.startswith("License ::"))
+        teile += ["=" * 78, f"{meta['Name']} {dist.version}", f"Lizenz: {lizenz or 'siehe Text'}", ""]
+        for datei in sorted(dist.files or [], key=str):
+            if muster.search(datei.name):
+                text = dist.locate_file(datei).read_text(encoding="utf-8", errors="replace")
+                teile += [f"--- {datei}", text.strip(), ""]
+    ziel = Path(workpath) / "python-pakete.txt"
+    ziel.write_text("\n".join(teile) + "\n", encoding="utf-8")
+    return ziel
+
+
+# Die Laufzeit selbst (CPython samt OpenSSL & Co.) steht in licenses/python/.
+lizenzen = [("licenses/python-pakete.txt", str(paket_lizenzen()), "DATA")]
+
 exe = EXE(
     pyz, a.scripts, [],
     exclude_binaries=True,
@@ -52,7 +94,7 @@ exe = EXE(
     console=False,          # kein Terminalfenster; Fortschritt zeigt die Oberfläche
     icon=symbol,
 )
-coll = COLLECT(exe, a.binaries, a.datas, name="live-protocol")
+coll = COLLECT(exe, a.binaries, a.datas + lizenzen, name="live-protocol")
 
 if sys.platform == "darwin":
     app = BUNDLE(
