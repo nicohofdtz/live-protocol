@@ -70,7 +70,9 @@ Linie:
   nicht langsamer wird.** Ihr Qualitätsnachteil ist zum Teil Prompt-Sache und
   ließ sich in einem Durchgang halbieren.
 
-Umgesetzt ist deshalb beides plus eine Kombination:
+Umgesetzt ist deshalb beides plus eine Kombination (Stand 2026-09, für
+Besprechungen überholt: `rewrite` verliert in langen Sitzungen frühe Themen,
+siehe 2026-11-06):
 
 | Fall | Empfehlung |
 |---|---|
@@ -223,6 +225,7 @@ und `data_collection: "deny"`.
 
 Gemma ist am schnellsten und bleibt flach, das Ergebnis ist brauchbar
 gegliedert. Es ist jetzt das Live-Modell, Nemo bleibt Ausweichweg.
+(Stand 2026-10, überholt: Nemo ist abgeschaltet, siehe 2026-11-06.)
 
 ## Mistral-Modelle für Live und Abschluss (2026-11-06)
 
