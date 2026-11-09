@@ -181,7 +181,8 @@ Hand veröffentlicht wird. Versionen, Plattformen und Einzelheiten:
 
 MIT, siehe `LICENSE`. Fremdbestandteile und ihre Lizenzen stehen in
 [THIRD_PARTY.md](THIRD_PARTY.md): `static/lame.min.js` ist lamejs 1.2.1
-(LGPL-3.0), die Desktop-Apps enthalten whisper.cpp (MIT). Das
+(LGPL-3.0), die Desktop-Apps enthalten whisper.cpp (MIT), eine eigene
+Python-Laufzeit und die Python-Pakete samt ihren Lizenztexten. Das
 Whisper-Modell gehört nicht zum Repository; die Desktop-Fassung lädt es beim
 ersten Start von Hugging Face.
 
