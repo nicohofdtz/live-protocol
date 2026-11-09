@@ -2,12 +2,21 @@ __pycache__/
 .venv/
 *.pyc
 .env
+.env.*
+!.env.example
 experiments/out/
 experiments/audio/
 build/bin/
 build/dist/
 build/work/
 build/whisper.cpp/
+
+.pytest_cache/
+
+# Mitschnitte gehören nie ins Repository
+*.wav
+*.mp3
+*.m4a
 
 # macOS
 .DS_Store

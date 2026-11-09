@@ -9,3 +9,5 @@ tests
 tools
 docs
 README.md
+overlay
+.DS_Store
